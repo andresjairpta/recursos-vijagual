@@ -1,0 +1,89 @@
+<!-- titulo: Graficador del Bananal | descripcion: Convierte los datos de una investigación en un gráfico de barras o de línea y descárgalo como imagen. -->
+<h1>Graficador del Bananal</h1>
+<p class="sub">Escribe tus datos, elige el tipo de gráfico y descárgalo como imagen para tu artículo, tu cartel o tu ponencia. No necesitas internet una vez abierta la página.</p>
+
+<div class="tarjeta no-imprimir">
+  <label>Título del gráfico<input id="titulo" value="Temperatura a mediodía en el patio del colegio (ejemplo)"></label>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+    <label>¿Qué mide cada valor? (unidad)<input id="unidad" value="°C"></label>
+    <label>Tipo de gráfico
+      <select id="tipo"><option value="barras">Barras (comparar)</option><option value="linea">Línea (cambio en el tiempo)</option></select>
+    </label>
+  </div>
+  <label style="display:block;margin-top:10px">Fuente de los datos (¿quién los tomó, cuándo y cómo?)<input id="fuente" value="Medición del equipo editorial con termómetro, semana del 2 al 6 de febrero"></label>
+  <h2 style="font-size:1rem">Datos</h2>
+  <div id="filas"></div>
+  <p><button class="sec2" id="agregar" type="button">+ Agregar dato</button> <button class="sec2" id="limpiar" type="button">Borrar todo</button></p>
+  <p class="nota">Los datos del ejemplo son inventados para mostrar cómo funciona: reemplázalos por los que tu equipo recoja.</p>
+</div>
+
+<div class="tarjeta">
+  <canvas id="lienzo" width="900" height="560" style="width:100%;height:auto;display:block"></canvas>
+</div>
+<p class="no-imprimir"><button id="descargar" type="button">Descargar imagen (PNG)</button></p>
+
+<div class="tarjeta">
+  <h2 style="margin-top:0;font-size:1rem">Para leer tu gráfico (y escribirlo en el artículo)</h2>
+  <ul>
+    <li>¿Cuál es el valor más alto y cuál el más bajo? ¿Qué diferencia hay entre ellos?</li>
+    <li>¿Se ve una tendencia (sube, baja, se mantiene)? ¿A qué se puede deber?</li>
+    <li>Escribe una frase que explique el gráfico a alguien que no lo ve: «Según…, …».</li>
+  </ul>
+  <p class="nota">Sin celular: dibuja el mismo gráfico en papel cuadriculado (un cuadro por unidad) y responde las mismas preguntas.</p>
+</div>
+
+<script>
+(function(){
+  const ejemplo=[["Lunes",31],["Martes",33],["Miércoles",32],["Jueves",34],["Viernes",30]];
+  const filas=document.getElementById('filas');
+  function fila(et="",val=""){
+    const d=document.createElement('div');
+    d.style.cssText='display:grid;grid-template-columns:1.4fr 1fr auto;gap:8px;margin:6px 0';
+    d.innerHTML='<input placeholder="Categoría (ej.: lunes, finca A)" class="et"><input type="number" step="any" placeholder="Valor" class="val"><button type="button" class="sec2" title="Quitar">✕</button>';
+    d.querySelector('.et').value=et; d.querySelector('.val').value=val;
+    d.querySelector('button').onclick=()=>{d.remove();dibujar();};
+    d.querySelectorAll('input').forEach(i=>i.oninput=dibujar);
+    filas.appendChild(d);
+  }
+  ejemplo.forEach(([e,v])=>fila(e,v));
+  document.getElementById('agregar').onclick=()=>{fila();};
+  document.getElementById('limpiar').onclick=()=>{filas.innerHTML='';fila();fila();dibujar();};
+  ['titulo','unidad','tipo','fuente'].forEach(id=>document.getElementById(id).oninput=dibujar);
+  document.getElementById('tipo').onchange=dibujar;
+
+  const c=document.getElementById('lienzo'), g=c.getContext('2d');
+  function datos(){return [...filas.children].map(d=>[d.querySelector('.et').value.trim(),parseFloat(d.querySelector('.val').value)]).filter(([e,v])=>e&&!isNaN(v));}
+  function dibujar(){
+    const W=c.width,H=c.height, d=datos();
+    g.fillStyle='#fff';g.fillRect(0,0,W,H);
+    g.fillStyle='#1d2b22';g.font='bold 26px "Century Gothic",sans-serif';g.textAlign='center';
+    g.fillText(document.getElementById('titulo').value||'Mi gráfico',W/2,40);
+    const m={l:80,r:30,t:70,b:110}, aw=W-m.l-m.r, ah=H-m.t-m.b;
+    g.strokeStyle='#5b6b60';g.lineWidth=2;g.beginPath();g.moveTo(m.l,m.t);g.lineTo(m.l,m.t+ah);g.lineTo(m.l+aw,m.t+ah);g.stroke();
+    if(!d.length){g.font='20px sans-serif';g.fillStyle='#5b6b60';g.fillText('Escribe al menos un dato',W/2,H/2);return;}
+    const vals=d.map(x=>x[1]), max=Math.max(0,...vals), min=Math.min(0,...vals);
+    const paso=niceStep((max-min)||1), top=Math.ceil(max/paso)*paso, bot=Math.floor(min/paso)*paso, rango=(top-bot)||1;
+    const y=v=>m.t+ah-(v-bot)/rango*ah;
+    g.font='16px sans-serif';g.textAlign='right';g.fillStyle='#5b6b60';g.strokeStyle='#e3e8e1';g.lineWidth=1;
+    for(let v=bot;v<=top+1e-9;v+=paso){g.beginPath();g.moveTo(m.l,y(v));g.lineTo(m.l+aw,y(v));g.stroke();g.fillText(fmt(v),m.l-10,y(v)+5);}
+    g.save();g.translate(22,m.t+ah/2);g.rotate(-Math.PI/2);g.textAlign='center';g.fillText(document.getElementById('unidad').value,0,0);g.restore();
+    const n=d.length, ancho=aw/n, tipo=document.getElementById('tipo').value;
+    g.textAlign='center';
+    if(tipo==='barras'){
+      d.forEach(([e,v],i)=>{const x=m.l+i*ancho+ancho*0.18,w=ancho*0.64;g.fillStyle='#1f6b3a';g.fillRect(x,Math.min(y(v),y(0)),w,Math.abs(y(v)-y(0)));g.fillStyle='#1d2b22';g.font='bold 16px sans-serif';g.fillText(fmt(v),x+w/2,y(v)-8);});
+    }else{
+      g.strokeStyle='#1f6b3a';g.lineWidth=4;g.beginPath();d.forEach(([e,v],i)=>{const x=m.l+i*ancho+ancho/2;i?g.lineTo(x,y(v)):g.moveTo(x,y(v));});g.stroke();
+      d.forEach(([e,v],i)=>{const x=m.l+i*ancho+ancho/2;g.fillStyle='#f2c230';g.beginPath();g.arc(x,y(v),7,0,7);g.fill();g.fillStyle='#1d2b22';g.font='bold 16px sans-serif';g.fillText(fmt(v),x,y(v)-14);});
+    }
+    g.fillStyle='#1d2b22';g.font='15px sans-serif';
+    d.forEach(([e],i)=>{g.fillText(e.length>14?e.slice(0,13)+'…':e,m.l+i*ancho+ancho/2,m.t+ah+24);});
+    g.fillStyle='#5b6b60';g.font='italic 15px sans-serif';g.textAlign='left';
+    g.fillText('Fuente: '+(document.getElementById('fuente').value||'(escribe la fuente de tus datos)'),m.l,H-46);
+    g.fillText('CER Vijagual · Graficador del Bananal',m.l,H-20);
+  }
+  function niceStep(r){const p=Math.pow(10,Math.floor(Math.log10(r/5)));const f=r/5/p;return (f<1.5?1:f<3?2:f<7?5:10)*p;}
+  function fmt(v){return Math.round(v*100)/100;}
+  document.getElementById('descargar').onclick=()=>{const a=document.createElement('a');a.download=(document.getElementById('titulo').value||'grafico').replace(/[^\wáéíóúñ ]/gi,'').trim().replace(/ +/g,'-')+'.png';a.href=c.toDataURL('image/png');a.click();};
+  dibujar();
+})();
+</script>

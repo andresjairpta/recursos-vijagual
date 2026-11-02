@@ -1,0 +1,59 @@
+<!-- titulo: Cronómetro semáforo | descripcion: Cronómetro de turnos para ponencias, debates y exposiciones: verde, amarillo y rojo. -->
+<h1>Cronómetro semáforo</h1>
+<p class="sub">Para ponencias, debates y exposiciones: la pantalla está en <b>verde</b> mientras hay tiempo, pasa a <b>amarillo</b> en el último minuto y a <b>rojo</b> cuando el tiempo se acaba. Ponla en el celular frente al orador o proyéctala.</p>
+
+<div id="panel" class="tarjeta" style="text-align:center;padding:26px 12px;transition:background .4s">
+  <div id="rol" style="font-size:1.1rem;font-weight:700">Turno</div>
+  <div id="reloj" style="font-size:clamp(4rem,22vw,10rem);font-weight:800;line-height:1;font-variant-numeric:tabular-nums">07:00</div>
+  <div id="estado" style="font-size:1.1rem">Listo para empezar</div>
+</div>
+
+<div class="tarjeta no-imprimir">
+  <p style="margin-top:0">Tiempos rápidos:
+    <button class="sec2" data-min="1" type="button">1 min</button>
+    <button class="sec2" data-min="2" type="button">2 min</button>
+    <button class="sec2" data-min="5" type="button">5 min</button>
+    <button class="sec2" data-min="7" type="button">7 min</button>
+  </p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <label>Minutos<input id="min" type="number" min="0" max="90" value="7"></label>
+    <label>Nombre del turno (opcional)<input id="nombre" placeholder="Ej.: Ponencia de Yuliana"></label>
+  </div>
+  <p style="margin-bottom:0">
+    <button id="iniciar" type="button">Iniciar</button>
+    <button id="pausar" class="sec2" type="button">Pausar</button>
+    <button id="reiniciar" class="sec2" type="button">Reiniciar</button>
+    <button id="pantalla" class="sec2" type="button">Pantalla completa</button>
+    <label style="display:inline-flex;gap:6px;align-items:center;width:auto"><input id="sonido" type="checkbox" checked style="width:auto"> Sonido de aviso</label>
+  </p>
+</div>
+<p class="nota">Sin celular: el cronometrista del grupo usa tres cartulinas (verde, amarilla y roja) y las levanta al orador en los mismos momentos.</p>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  let total=420, restante=420, intervalo=null, avisado=false;
+  const colores={verde:'#d7f0de',amarillo:'#fff1b8',rojo:'#f7c9c4'};
+  function pintar(){
+    const s=Math.max(0,restante), mm=String(Math.floor(s/60)).padStart(2,'0'), ss=String(s%60).padStart(2,'0');
+    $('reloj').textContent=(restante<0?'-':'')+mm+':'+ss;
+    let c='verde', e='Tiempo disponible';
+    if(restante<=60&&restante>0){c='amarillo';e='Último minuto: ve cerrando';}
+    if(restante<=0){c='rojo';e='Tiempo terminado: concluye';}
+    if(!intervalo&&restante===total){e='Listo para empezar';}
+    $('panel').style.background=colores[c]; $('estado').textContent=e;
+    $('rol').textContent=$('nombre').value||'Turno';
+  }
+  function pitido(f,d){if(!$('sonido').checked)return;try{const a=new (window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator();o.frequency.value=f;o.connect(a.destination);o.start();setTimeout(()=>{o.stop();a.close();},d);}catch(e){}}
+  function tic(){restante--; if(restante===60)pitido(660,250); if(restante===0)pitido(440,700); if(restante<=-30){clearInterval(intervalo);intervalo=null;} pintar();}
+  function fijar(m){clearInterval(intervalo);intervalo=null;total=Math.round(m*60);restante=total;$('min').value=m;pintar();}
+  document.querySelectorAll('[data-min]').forEach(b=>b.onclick=()=>fijar(+b.dataset.min));
+  $('min').onchange=()=>fijar(Math.max(0,+$('min').value||0));
+  $('nombre').oninput=pintar;
+  $('iniciar').onclick=()=>{if(!intervalo){intervalo=setInterval(tic,1000);pintar();}};
+  $('pausar').onclick=()=>{clearInterval(intervalo);intervalo=null;$('estado').textContent='En pausa';};
+  $('reiniciar').onclick=()=>fijar(total/60);
+  $('pantalla').onclick=()=>{const p=$('panel');(p.requestFullscreen||p.webkitRequestFullscreen||function(){}).call(p);};
+  pintar();
+})();
+</script>
