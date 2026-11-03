@@ -33,6 +33,26 @@ ENCABEZADO = f"""<header class="inst">
   </div>
 </header>"""
 
+ENCABEZADO_COMPACTO = f"""<header class="inst compacto">
+  <img class="escudo" alt="Escudo del Centro Educativo Rural Vijagual" src="data:image/png;base64,{ESCUDO}">
+  <div class="inst-texto">
+    <p class="cer">CENTRO EDUCATIVO RURAL VIJAGUAL · <span class="sec">Secretaria de Educación de Antioquia</span></p>
+    <p class="res">Resoluciones Departamentales N° 09194 de 2008, N° 0094782 de 2010 y N° S127203 de 2014 · DANE N° 205147000058 · NIT 811019113-1 · Carepa - Antioquia</p>
+    <p class="lema">“Formando líderes integrales, transformando comunidades”</p>
+  </div>
+</header>"""
+
+ESTILO_TV = """
+html{font-size:clamp(17px,1.55vw,34px)}
+.inst.compacto{padding:6px 16px;gap:12px}
+.inst.compacto .escudo{width:3.2rem}
+.inst.compacto .cer{font-size:.95rem}
+.inst.compacto .sec{font-weight:400;color:var(--suave)}
+.inst.compacto .res{font-size:.55rem}
+.inst.compacto .lema{font-size:.75rem}
+main{max-width:none;padding:12px 2.5vw 24px}
+"""
+
 ESTILO = """
 :root{--tinta:#1d2b22;--suave:#5b6b60;--verde:#1f6b3a;--verde-claro:#e6f2ea;--amarillo:#f2c230;--rojo:#c0392b;--fondo:#fbfaf6;--tarjeta:#ffffff;--borde:#d9dfd6}
 *{box-sizing:border-box}
@@ -63,11 +83,13 @@ footer{text-align:center;font-size:.75rem;color:var(--suave);padding:16px}
 def construir() -> None:
     for fuente in sorted(PAGINAS.rglob("*.html")):
         texto = fuente.read_text(encoding="utf-8")
-        m = re.match(r"<!--\s*titulo:\s*(.*?)\s*\|\s*descripcion:\s*(.*?)\s*-->\s*", texto)
+        m = re.match(r"<!--\s*titulo:\s*(.*?)\s*\|\s*descripcion:\s*(.*?)\s*(?:\|\s*modo:\s*(tv))?\s*-->\s*", texto)
         if not m:
             raise SystemExit(f"Falta la línea de título en {fuente}")
-        titulo, descripcion = m.group(1), m.group(2)
+        titulo, descripcion, modo = m.group(1), m.group(2), m.group(3)
         cuerpo = texto[m.end():]
+        encabezado = ENCABEZADO_COMPACTO if modo == "tv" else ENCABEZADO
+        estilo = ESTILO + (ESTILO_TV if modo == "tv" else "")
         pagina = f"""<!doctype html>
 <html lang="es">
 <head>
@@ -75,10 +97,10 @@ def construir() -> None:
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{titulo} · CER Vijagual</title>
 <meta name="description" content="{descripcion}">
-<style>{ESTILO}</style>
+<style>{estilo}</style>
 </head>
 <body>
-{ENCABEZADO}
+{encabezado}
 <main>
 {cuerpo}
 </main>

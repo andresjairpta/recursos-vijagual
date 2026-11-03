@@ -1,6 +1,6 @@
-<!-- titulo: Graficador del Bananal | descripcion: Convierte los datos de una investigación en un gráfico de barras o de línea y descárgalo como imagen. -->
+<!-- titulo: Graficador del Bananal | descripcion: Convierte los datos de una investigación en un gráfico de barras o de línea, para proyectar en el televisor y descargar como imagen. | modo: tv -->
 <h1>Graficador del Bananal</h1>
-<p class="sub">Escribe tus datos, elige el tipo de gráfico y descárgalo como imagen para tu artículo, tu cartel o tu ponencia. No necesitas internet una vez abierta la página.</p>
+<p class="sub">Para proyectar en el televisor: cada equipo dicta sus datos, el docente los escribe y todo el grupo ve cómo se arma el gráfico. Después se descarga como imagen para el artículo, el cartel o la ponencia. No necesita internet una vez abierta la página.</p>
 
 <div class="tarjeta no-imprimir">
   <label>Título del gráfico<input id="titulo" value="Temperatura a mediodía en el patio del colegio (ejemplo)"></label>
@@ -17,10 +17,10 @@
   <p class="nota">Los datos del ejemplo son inventados para mostrar cómo funciona: reemplázalos por los que tu equipo recoja.</p>
 </div>
 
-<div class="tarjeta">
-  <canvas id="lienzo" width="900" height="560" style="width:100%;height:auto;display:block"></canvas>
+<div class="tarjeta" id="marcoGrafico" style="background:#fff">
+  <canvas id="lienzo" width="1350" height="840" style="width:100%;height:auto;display:block;max-height:92vh;object-fit:contain"></canvas>
 </div>
-<p class="no-imprimir"><button id="descargar" type="button">Descargar imagen (PNG)</button></p>
+<p class="no-imprimir"><button id="pantalla" type="button">Ver el gráfico en pantalla completa</button> <button class="sec2" id="descargar" type="button">Descargar imagen (PNG)</button></p>
 
 <div class="tarjeta">
   <h2 style="margin-top:0;font-size:1rem">Para leer tu gráfico (y escribirlo en el artículo)</h2>
@@ -54,7 +54,7 @@
   const c=document.getElementById('lienzo'), g=c.getContext('2d');
   function datos(){return [...filas.children].map(d=>[d.querySelector('.et').value.trim(),parseFloat(d.querySelector('.val').value)]).filter(([e,v])=>e&&!isNaN(v));}
   function dibujar(){
-    const W=c.width,H=c.height, d=datos();
+    const S=c.width/900; g.setTransform(S,0,0,S,0,0); const W=900,H=560, d=datos();
     g.fillStyle='#fff';g.fillRect(0,0,W,H);
     g.fillStyle='#1d2b22';g.font='bold 26px "Century Gothic",sans-serif';g.textAlign='center';
     g.fillText(document.getElementById('titulo').value||'Mi gráfico',W/2,40);
@@ -83,6 +83,7 @@
   }
   function niceStep(r){const p=Math.pow(10,Math.floor(Math.log10(r/5)));const f=r/5/p;return (f<1.5?1:f<3?2:f<7?5:10)*p;}
   function fmt(v){return Math.round(v*100)/100;}
+  document.getElementById('pantalla').onclick=()=>{const m=document.getElementById('marcoGrafico');(m.requestFullscreen||m.webkitRequestFullscreen||function(){}).call(m);};
   document.getElementById('descargar').onclick=()=>{const a=document.createElement('a');a.download=(document.getElementById('titulo').value||'grafico').replace(/[^\wáéíóúñ ]/gi,'').trim().replace(/ +/g,'-')+'.png';a.href=c.toDataURL('image/png');a.click();};
   dibujar();
 })();

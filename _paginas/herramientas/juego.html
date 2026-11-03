@@ -1,0 +1,204 @@
+<!-- titulo: Juego en pantalla | descripcion: Juego de tarjetas por equipos para proyectar en el televisor del salón: tiempo, respuesta y puntaje. | modo: tv -->
+<style>
+.jg-barra{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between;margin:.3rem 0 .6rem}
+.jg-titulo{font-size:1.25rem;font-weight:800;color:var(--verde);margin:0}
+.jg-cont{color:var(--suave);font-size:.9rem}
+.jg-carta{background:#fff;border:3px solid var(--verde);border-radius:22px;min-height:52vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:2.2vh 4vw;gap:1.2vh;box-shadow:0 6px 0 var(--verde-claro)}
+.jg-contexto{font-size:1rem;color:var(--suave);font-style:italic;max-width:60ch}
+.jg-frente{font-size:clamp(1.6rem,3.6vw,3.4rem);font-weight:800;line-height:1.2;max-width:28ch}
+.jg-consigna{font-size:1rem;color:var(--suave)}
+.jg-resp{display:none;border-top:2px dashed var(--borde);padding-top:1.2vh;max-width:70ch}
+.jg-resp.ver{display:block}
+.jg-etiqueta{display:inline-block;font-weight:800;font-size:1.5rem;padding:.2em .7em;border-radius:12px;margin-bottom:.4em}
+.jg-ok{background:#d7f0de;color:#145a2c}.jg-no{background:#f7c9c4;color:#8e2418}.jg-neu{background:#fff1b8;color:#6b5200}
+.jg-expl{font-size:1.05rem}
+.jg-tiempo{height:.9rem;background:var(--verde-claro);border-radius:9px;overflow:hidden;width:min(70vw,900px)}
+.jg-tiempo>div{height:100%;background:var(--verde);width:100%;transition:width 1s linear}
+.jg-num{font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums}
+.jg-controles{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:.8rem 0}
+.jg-controles button{font-size:1rem}
+.jg-equipos{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center}
+.jg-eq{background:#fff;border:2px solid var(--borde);border-radius:14px;padding:.4rem .8rem;display:flex;align-items:center;gap:.5rem;font-size:1rem}
+.jg-eq b{font-size:1.5rem;min-width:2ch;text-align:center}
+.jg-eq button{padding:.2rem .6rem}
+.jg-mazos{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:.8rem}
+.jg-mazo{background:#fff;border:2px solid var(--borde);border-radius:16px;padding:1rem;cursor:pointer;text-align:left}
+.jg-mazo:hover{border-color:var(--verde)}
+.jg-mazo h3{margin:.1rem 0;color:var(--verde)}
+.jg-ayuda{font-size:.75rem;color:var(--suave);text-align:center}
+#juego:fullscreen{background:var(--fondo);padding:2vh 3vw;overflow:auto}
+</style>
+
+<div id="juego">
+  <div id="inicio"></div>
+  <div id="mesa" style="display:none">
+    <div class="jg-barra">
+      <p class="jg-titulo" id="mesaTitulo"></p>
+      <span class="jg-cont" id="contador"></span>
+    </div>
+    <div class="jg-carta">
+      <div class="jg-contexto" id="contexto"></div>
+      <div class="jg-frente" id="frente"></div>
+      <div class="jg-consigna" id="consigna"></div>
+      <div id="zonaTiempo" style="display:none;flex-direction:column;align-items:center;gap:.4rem"><div class="jg-tiempo"><div id="barraT"></div></div><span class="jg-num" id="numT"></span></div>
+      <div class="jg-resp" id="resp"><span class="jg-etiqueta" id="etiqueta"></span><div class="jg-expl" id="expl"></div></div>
+    </div>
+    <div class="jg-controles no-imprimir">
+      <button class="sec2" id="bAnt" type="button">← Anterior</button>
+      <button class="sec2" id="bTiempo" type="button">⏱ Tiempo</button>
+      <button id="bResp" type="button">Mostrar respuesta</button>
+      <button class="sec2" id="bSig" type="button">Siguiente →</button>
+      <button class="sec2" id="bPant" type="button">Pantalla completa</button>
+      <button class="sec2" id="bSalir" type="button">Cambiar de juego</button>
+    </div>
+    <div class="jg-equipos" id="equipos"></div>
+    <p class="jg-ayuda">Teclado: espacio = respuesta · → siguiente · ← anterior · T = tiempo · F = pantalla completa</p>
+  </div>
+</div>
+<p class="nota">Sin televisor o sin señal: el docente lee las tarjetas en voz alta (o las copia en fichas de cartulina) y anota los puntos en el tablero.</p>
+
+<script>
+(function(){
+const MAZOS = {
+  "ciencia-o-chisme": {
+    titulo: "¿Ciencia o chisme?", grupo: "Producción textual 10° · Periodo 1", tiempo: 0,
+    instrucciones: "Lean el mensaje. Cada equipo decide si es CIENCIA o CHISME y levanta su paleta. Un vocero defiende la respuesta con una pista. Punto para quien acierte y explique.",
+    consigna: "¿Ciencia o chisme? ¿Qué pista te lo dice?",
+    tarjetas: [
+      {f:"El zancudo del dengue pone sus huevos en agua limpia y quieta: tarros, llantas, floreros y tanques destapados.", r:"CIENCIA", t:"ok", e:"Es lo que recomienda el Instituto Nacional de Salud: eliminar o tapar los recipientes con agua estancada."},
+      {f:"¡URGENTE! El dengue se pega por tomar agua de la quebrada. Reenvía este mensaje a diez contactos.", r:"CHISME", t:"no", e:"El dengue lo transmite la picadura del zancudo Aedes aegypti, no el agua que se toma. Pistas: no dice quién lo afirma y pide reenviar."},
+      {f:"El Fusarium raza 4 tropical viaja en la tierra pegada a botas, herramientas y llantas; por eso las fincas tienen pediluvios.", r:"CIENCIA", t:"ok", e:"El ICA pide desinfectar calzado, herramientas y vehículos para que el hongo no pase de una finca a otra."},
+      {f:"Si a una mata enferma de Fusarium le echas gaseosa, se cura en una semana.", r:"CHISME", t:"no", e:"No existe una cura para la mata infectada: por eso la prevención es tan importante. Pista: promete un resultado milagroso sin fuente."},
+      {f:"Los manglares del golfo de Urabá guardan carbono y sirven de criadero a peces, cangrejos y aves.", r:"CIENCIA", t:"ok", e:"Lo muestran estudios de la Universidad de Antioquia y lo cuentan los pescadores de Turbo que siembran mangle."},
+      {f:"Talar el manglar no importa: vuelve a crecer solo en un mes.", r:"CHISME", t:"no", e:"Un manglar tarda muchos años en recuperarse; por eso hay comunidades que lo siembran y lo cuidan. Pista: minimiza un daño sin dar pruebas."},
+      {f:"En las fincas se cortan las hojas viejas con manchas negras de sigatoka para que la enfermedad no se extienda.", r:"CIENCIA", t:"ok", e:"Es el deshoje sanitario: quitar hojas enfermas reduce el hongo en la plantación."},
+      {f:"El calor de este año es por culpa de la antena de celular que pusieron en el pueblo.", r:"CHISME", t:"no", e:"Las antenas no calientan el clima de una región. El calor tiene que ver con el clima y el cambio climático. Pista: culpa a algo cercano sin ninguna prueba."}
+    ]
+  },
+  "traductor-cientifico": {
+    titulo: "Traductor científico", grupo: "Producción textual 10° · Periodo 1", tiempo: 60,
+    instrucciones: "Un integrante del equipo ve la palabra y tiene un minuto para explicarla SIN decirla, con una comparación de la vereda. Si su equipo adivina, gana un punto. Luego el docente muestra la definición para comprobar.",
+    consigna: "Explícala sin decirla, con una comparación de la vereda.",
+    tarjetas: [
+      {f:"Fotosíntesis", r:"DEFINICIÓN", t:"neu", e:"Proceso con el que las plantas usan la luz del sol, el agua y el dióxido de carbono para fabricar su alimento y soltar oxígeno."},
+      {f:"Hongo", r:"DEFINICIÓN", t:"neu", e:"Ser vivo que no es planta ni animal; se alimenta de materia orgánica y se reproduce por esporas, como el moho o el que causa la sigatoka."},
+      {f:"Vector", r:"DEFINICIÓN", t:"neu", e:"Ser vivo que lleva un microbio de un organismo a otro, como el zancudo que transporta el virus del dengue."},
+      {f:"Patógeno", r:"DEFINICIÓN", t:"neu", e:"Microorganismo que causa una enfermedad: virus, bacteria u hongo."},
+      {f:"Carbono", r:"DEFINICIÓN", t:"neu", e:"Elemento presente en todos los seres vivos; como dióxido de carbono en el aire, contribuye al calentamiento del planeta."},
+      {f:"Biodiversidad", r:"DEFINICIÓN", t:"neu", e:"La variedad de seres vivos que hay en un lugar."},
+      {f:"Ecosistema", r:"DEFINICIÓN", t:"neu", e:"Los seres vivos de un lugar y su ambiente, relacionados entre sí, como el manglar o la quebrada."},
+      {f:"Estuario", r:"DEFINICIÓN", t:"neu", e:"Lugar donde un río llega al mar y se mezclan el agua dulce y la salada, como el golfo de Urabá."},
+      {f:"Erosión", r:"DEFINICIÓN", t:"neu", e:"Desgaste y arrastre del suelo por el agua o el viento, mayor cuando no hay árboles."},
+      {f:"Epidemia", r:"DEFINICIÓN", t:"neu", e:"Aumento de los casos de una enfermedad en un lugar y un tiempo por encima de lo esperado."},
+      {f:"Desinfección", r:"DEFINICIÓN", t:"neu", e:"Eliminar los microbios de objetos o superficies con productos o con calor, como en el pediluvio de las fincas."},
+      {f:"Temperatura media", r:"DEFINICIÓN", t:"neu", e:"El promedio de las temperaturas medidas durante un periodo: un día, un mes o un año."}
+    ]
+  },
+  "detector-de-intenciones": {
+    titulo: "Detector de intenciones", grupo: "Producción textual 10° · Periodo 2", tiempo: 45,
+    instrucciones: "El docente lee la frase en voz alta con el tono indicado. Cada equipo decide qué intención o tono hay detrás: sinceridad, ironía, doble sentido, insinuación o agresividad. Punto para quien acierte y explique la pista.",
+    consigna: "¿Qué intención o tono hay detrás? ¿Qué pista te lo dice?",
+    tarjetas: [
+      {c:"Llueve a cántaros y el bus escolar no llegó.", f:"«¡Qué día tan bonito para caminar hasta el colegio!»", r:"IRONÍA", t:"no", e:"Dice lo contrario de lo que piensa. La pista es el contraste entre la frase y la situación."},
+      {c:"En la asamblea de la JAC, a un vecino que llegó una hora tarde.", f:"«Tranquilo, nosotros lo esperamos toda la vida».", r:"IRONÍA CON REPROCHE", t:"no", e:"Parece amable, pero critica la tardanza. El tono y la exageración («toda la vida») la delatan."},
+      {c:"Una vecina habla de un candidato al concejo.", f:"«Ese candidato sí tiene buenas manos… para recibir».", r:"DOBLE SENTIDO", t:"neu", e:"«Buenas manos» parece un elogio, pero la pausa y el remate insinúan que acepta dinero indebido."},
+      {c:"Un estudiante, después de una explicación del docente.", f:"«Yo no digo que el profe se equivocó; solo digo que nadie más lo entendió».", r:"INSINUACIÓN", t:"neu", e:"Critica sin decirlo directamente: niega la crítica mientras la hace."},
+      {c:"Un ponente responde en el coloquio.", f:"«Le agradezco su pregunta, porque me permite aclarar un punto importante».", r:"CORTESÍA SINCERA", t:"ok", e:"Reconoce al interlocutor y retoma el tema con respeto. Es una buena estrategia para responder con calma."},
+      {c:"Dos panelistas discuten sobre el trabajo en las fincas.", f:"«¡Usted no sabe nada de fincas, mejor cállese!»", r:"AGRESIVIDAD", t:"no", e:"Ataca a la persona en lugar de su argumento y busca callarla. Rompe el diálogo."},
+      {c:"Una señora mayor comenta en la tienda, con una pausa larga.", f:"«Los jóvenes de hoy son muy… especiales».", r:"DOBLE SENTIDO", t:"neu", e:"La pausa y la entonación convierten «especiales» en una crítica disfrazada."},
+      {c:"Un ponente presenta los resultados de la encuesta del curso.", f:"«Según la encuesta que hicimos, 18 de los 25 compañeros quieren seguir estudiando después del grado».", r:"INFORMAR CON DATOS", t:"ok", e:"Tono neutral: presenta un dato con su fuente. Su intención es informar y sustentar."}
+    ]
+  },
+  "argumento-o-falacia": {
+    titulo: "Argumento o falacia", grupo: "Producción textual 10° · Periodo 4", tiempo: 45,
+    instrucciones: "Cada equipo decide si la frase es un ARGUMENTO válido o una FALACIA. Si es argumento, digan de qué tipo; si es falacia, cuál es la trampa. Punto por acertar y otro por nombrar el tipo.",
+    consigna: "¿Argumento o falacia? ¿De qué tipo?",
+    tarjetas: [
+      {f:"El manglar debe protegerse porque, según un estudio de la Universidad de Antioquia, guarda grandes cantidades de carbono.", r:"ARGUMENTO DE AUTORIDAD", t:"ok", e:"Se apoya en una fuente identificable y experta en el tema."},
+      {f:"No le crean a Martha lo que dice sobre el puerto: ella ni siquiera terminó el bachillerato.", r:"FALACIA: ATAQUE A LA PERSONA", t:"no", e:"Descalifica a quien habla en lugar de discutir lo que dice (ad hominem)."},
+      {f:"Si dejamos usar el celular en clase, luego nadie estudiará, el colegio cerrará y la vereda se quedará sin futuro.", r:"FALACIA: PENDIENTE RESBALADIZA", t:"no", e:"Encadena consecuencias cada vez más graves sin probar que una lleve a la otra."},
+      {f:"Todo el mundo usa inteligencia artificial para las tareas, así que debe estar bien.", r:"FALACIA: «TODO EL MUNDO LO HACE»", t:"no", e:"Que muchos lo hagan no demuestra que esté bien (ad populum)."},
+      {f:"O apoyas el puerto o estás contra el progreso de Urabá.", r:"FALACIA: FALSO DILEMA", t:"no", e:"Presenta solo dos opciones cuando hay más, por ejemplo apoyar el puerto exigiendo que proteja el manglar."},
+      {f:"En la encuesta del curso, 18 de 25 estudiantes no votaron por el personero porque no conocían las propuestas; por eso conviene hacer un debate antes de votar.", r:"ARGUMENTO CON DATOS", t:"ok", e:"Usa un dato propio con su fuente y saca una conclusión razonable."},
+      {f:"Un cantante famoso dice que la fumigación no hace daño, así que no hace daño.", r:"FALACIA: FALSA AUTORIDAD", t:"no", e:"La persona citada es famosa, pero no es experta en el tema."},
+      {f:"No votar es como dejar que otros escojan la camiseta de tu equipo.", r:"ARGUMENTO POR ANALOGÍA", t:"ok", e:"Compara una situación con otra conocida para explicar una idea. Hay que revisar que la comparación sea justa."},
+      {f:"Mi primo usó la inteligencia artificial una vez y sacó cinco; por lo tanto, la IA siempre sirve para sacar buenas notas.", r:"FALACIA: GENERALIZACIÓN APRESURADA", t:"no", e:"Saca una regla general de un solo caso."},
+      {f:"El voto joven importa porque las decisiones de hoy afectan durante más años a quienes vivirán más tiempo en la vereda.", r:"ARGUMENTO DE CAUSA Y CONSECUENCIA", t:"ok", e:"Explica la razón (la causa) que sostiene la conclusión."}
+    ]
+  }
+};
+
+const $ = id => document.getElementById(id);
+let mazo = null, i = 0, equipos = [], reloj = null, quedan = 0;
+
+function inicio(){
+  $('mesa').style.display='none'; $('inicio').style.display='block';
+  const pedido = new URLSearchParams(location.search).get('mazo');
+  if (pedido && MAZOS[pedido]) return preparar(pedido);
+  $('inicio').innerHTML = '<h1>Juego en pantalla</h1><p class="sub">Elige el juego de la clase. Proyecta esta página en el televisor y maneja las tarjetas con el teclado o el mouse.</p><div class="jg-mazos">' +
+    Object.entries(MAZOS).map(([id,m]) => `<button class="jg-mazo" data-id="${id}" type="button"><span class="nota">${m.grupo}</span><h3>${m.titulo}</h3><span class="nota">${m.tarjetas.length} tarjetas${m.tiempo?` · ${m.tiempo} s por tarjeta`:''}</span></button>`).join('') + '</div>';
+  document.querySelectorAll('.jg-mazo').forEach(b => b.onclick = () => preparar(b.dataset.id));
+}
+
+function preparar(id){
+  mazo = MAZOS[id];
+  $('inicio').innerHTML = `<h1>${mazo.titulo}</h1><p class="sub">${mazo.grupo}</p><div class="tarjeta" style="font-size:1.15rem">${mazo.instrucciones}</div>
+    <div class="tarjeta"><b>Equipos</b><p class="nota" style="margin:.2rem 0 .6rem">Escribe los nombres (deja vacío para no usarlo).</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:.5rem">${[1,2,3,4].map(n=>`<input class="nomEq" value="${n<=2?'Equipo '+n:''}" placeholder="Equipo ${n}">`).join('')}</div>
+    <p style="margin-bottom:0"><label style="display:inline-flex;gap:.4rem;align-items:center;width:auto"><input type="checkbox" id="mezclar" style="width:auto"> Mezclar las tarjetas</label></p></div>
+    <p><button id="empezar" type="button">Empezar</button> <button class="sec2" id="volver" type="button">Elegir otro juego</button></p>`;
+  $('empezar').onclick = () => {
+    equipos = [...document.querySelectorAll('.nomEq')].map(x=>x.value.trim()).filter(Boolean).map(n=>({n, p:0}));
+    if ($('mezclar').checked) mazo = {...mazo, tarjetas: [...mazo.tarjetas].sort(()=>Math.random()-.5)};
+    i = 0; $('inicio').style.display='none'; $('mesa').style.display='block'; pintarEquipos(); mostrar();
+  };
+  $('volver').onclick = () => { history.replaceState(null,'',location.pathname); inicio(); };
+}
+
+function mostrar(){
+  pararTiempo();
+  const t = mazo.tarjetas[i];
+  $('mesaTitulo').textContent = mazo.titulo;
+  $('contador').textContent = `Tarjeta ${i+1} de ${mazo.tarjetas.length}`;
+  $('contexto').textContent = t.c || '';
+  $('frente').textContent = t.f;
+  $('consigna').textContent = mazo.consigna;
+  $('etiqueta').textContent = t.r; $('etiqueta').className = 'jg-etiqueta jg-' + t.t;
+  $('expl').textContent = t.e;
+  $('resp').classList.remove('ver');
+  $('zonaTiempo').style.display = mazo.tiempo ? 'flex' : 'none';
+  $('bTiempo').style.display = mazo.tiempo ? '' : 'none';
+  quedan = mazo.tiempo; pintarTiempo();
+}
+function pintarTiempo(){ if(!mazo.tiempo) return; $('numT').textContent = quedan + ' s'; $('barraT').style.width = (quedan/mazo.tiempo*100)+'%'; $('barraT').style.background = quedan<=10 ? 'var(--rojo)' : 'var(--verde)'; }
+function pararTiempo(){ clearInterval(reloj); reloj = null; }
+function alternarTiempo(){ if(!mazo.tiempo) return; if(reloj) return pararTiempo(); if(quedan<=0) quedan = mazo.tiempo; reloj = setInterval(()=>{ quedan--; pintarTiempo(); if(quedan<=0){ pararTiempo(); $('resp').classList.add('ver'); } }, 1000); }
+function pintarEquipos(){
+  $('equipos').innerHTML = equipos.map((e,k)=>`<div class="jg-eq">${e.n} <b>${e.p}</b><button class="sec2" data-k="${k}" data-d="-1" type="button">−</button><button data-k="${k}" data-d="1" type="button">+1</button></div>`).join('');
+  document.querySelectorAll('.jg-eq button').forEach(b => b.onclick = () => { equipos[b.dataset.k].p += +b.dataset.d; pintarEquipos(); });
+}
+function final(){
+  pararTiempo();
+  const max = Math.max(...equipos.map(e=>e.p), 0), ganan = equipos.filter(e=>e.p===max&&max>0).map(e=>e.n);
+  $('mesa').style.display='none'; $('inicio').style.display='block';
+  $('inicio').innerHTML = `<h1>¡Fin del juego!</h1><div class="tarjeta" style="font-size:1.4rem;text-align:center">${ganan.length?'Ganador: <b>'+ganan.join(' y ')+'</b>':'¡Buen juego, equipos!'}</div><div class="jg-equipos">${equipos.map(e=>`<div class="jg-eq">${e.n} <b>${e.p}</b></div>`).join('')}</div><p style="text-align:center"><button id="otra" type="button">Jugar otra vez</button> <button class="sec2" id="otro" type="button">Elegir otro juego</button></p>`;
+  $('otra').onclick = () => { equipos.forEach(e=>e.p=0); i=0; $('inicio').style.display='none'; $('mesa').style.display='block'; pintarEquipos(); mostrar(); };
+  $('otro').onclick = () => { history.replaceState(null,'',location.pathname); inicio(); };
+}
+$('bResp').onclick = () => $('resp').classList.add('ver');
+$('bSig').onclick = () => { if (i < mazo.tarjetas.length-1) { i++; mostrar(); } else final(); };
+$('bAnt').onclick = () => { if (i > 0) { i--; mostrar(); } };
+$('bTiempo').onclick = alternarTiempo;
+$('bPant').onclick = () => { const j=$('juego'); (j.requestFullscreen||j.webkitRequestFullscreen||function(){}).call(j); };
+$('bSalir').onclick = () => { pararTiempo(); history.replaceState(null,'',location.pathname); inicio(); };
+document.addEventListener('keydown', ev => {
+  if ($('mesa').style.display==='none' || ev.target.tagName==='INPUT') return;
+  if (ev.key===' '){ ev.preventDefault(); $('bResp').click(); }
+  else if (ev.key==='ArrowRight') $('bSig').click();
+  else if (ev.key==='ArrowLeft') $('bAnt').click();
+  else if (ev.key==='t'||ev.key==='T') alternarTiempo();
+  else if (ev.key==='f'||ev.key==='F') $('bPant').click();
+});
+inicio();
+})();
+</script>
