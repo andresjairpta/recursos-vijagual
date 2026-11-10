@@ -1,0 +1,271 @@
+<!-- titulo: Cuentos en pantalla · Transición | descripcion: Tres juegos para el televisor de Transición: dados que cuentan historias, ¿rima? ¿empieza igual? y agrega, quita y reparte. | modo: tv -->
+<style>
+.bp-menu{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin:.3rem 0 .6rem}
+.bp-menu button{font-size:1rem;padding:.6rem 1.2rem;border-radius:1rem;display:flex;align-items:center;gap:.6rem}
+.bp-menu button.activo{background:var(--amarillo);color:var(--tinta)}
+.bp-menu .ico{font-size:1.8rem}
+#escena{background:#fff;border:3px solid var(--verde);border-radius:1.2rem;min-height:68vh;padding:1rem 1.2rem;position:relative}
+#escena:fullscreen{min-height:100vh;border:0;border-radius:0;padding:2vh 3vw;font-size:1.3em;overflow:auto}
+.ayuda{background:var(--verde-claro);border-radius:.8rem;padding:.3rem .9rem;font-size:.72rem;color:var(--tinta);margin-bottom:.4rem}
+.ayuda summary{cursor:pointer;font-weight:700;color:var(--verde)}
+.barra{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;margin:.4rem 0}
+.barra button{font-size:.95rem}
+.barra button.activo,.sel button.activo{background:var(--amarillo);color:var(--tinta)}
+.sel{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin:.2rem 0 .5rem}
+.sel button{font-size:.85rem;padding:.35rem .8rem}
+.equipos{display:flex;gap:1rem;justify-content:center;margin:0 0 .3rem;flex-wrap:wrap}
+.equipo{border-radius:1rem;padding:.3rem 1rem;font-weight:800;font-size:1.2rem;display:flex;gap:.6rem;align-items:center;border:3px solid transparent}
+.equipo.turno{border-color:var(--amarillo)}
+.eq-a{background:#e6f2ea;color:#1f6b3a}.eq-b{background:#fdf1d0;color:#8a6200}
+svg{width:100%;height:100%;display:block}
+.nombre{font-size:1.8rem;font-weight:800;color:var(--verde);text-align:center}
+.resultado{font-size:1.6rem;font-weight:800;text-align:center;min-height:2.3rem}
+.oculto{display:none!important}
+.tarjeta-grande{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem}
+.dibujo{width:min(36vh,40vw);height:min(36vh,40vw)}
+@keyframes saltito{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.salta{animation:saltito .5s 2}
+@keyframes sacude{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-.6rem)}40%,80%{transform:translateX(.6rem)}}
+.sacude{animation:sacude .5s}
+@keyframes gira{0%{transform:rotate(0) scale(1)}50%{transform:rotate(200deg) scale(.8)}100%{transform:rotate(360deg) scale(1)}}
+.girando{animation:gira .25s linear infinite}
+/* Dados */
+.dados{display:flex;gap:2.5vw;justify-content:center;flex-wrap:wrap}
+.dado{width:min(30vh,27vw);text-align:center;cursor:pointer}
+.dado .cara{background:#fffdf3;border:5px solid var(--verde);border-radius:1.4rem;aspect-ratio:1;padding:.4rem;box-shadow:0 6px 0 #1f6b3a33}
+.dado .tit{font-weight:800;font-size:1.15rem;color:var(--verde);margin-bottom:.2rem}
+.dado .pal{font-size:1.15rem;font-weight:700;min-height:1.6rem;margin-top:.3rem}
+.dado.d1 .cara{border-color:#c0392b}.dado.d2 .cara{border-color:#2980b9}.dado.d3 .cara{border-color:#8e44ad}
+.ruta{display:flex;gap:1vw;justify-content:center;margin-top:.8rem;flex-wrap:wrap}
+.ruta button{background:#fff;color:var(--tinta);border:3px dashed var(--borde);border-radius:1rem;padding:.6rem 1rem;font-size:1.15rem;min-width:13rem;font-weight:700}
+.ruta button.activo{border-style:solid;border-color:var(--amarillo);background:#fff7d6}
+.ruta button.hecho{border-style:solid;border-color:var(--verde);background:var(--verde-claro)}
+/* Sonidos */
+.objetivo{display:flex;align-items:center;gap:1.5rem;justify-content:center}
+.objetivo .dibujo{width:min(22vh,26vw);height:min(22vh,26vw)}
+.pregunta{font-size:1.8rem;font-weight:800;color:var(--verde);text-align:center}
+.opciones{display:flex;gap:2vw;justify-content:center;flex-wrap:wrap;margin-top:.6rem}
+.opcion{background:#fffdf3;border:4px solid var(--borde);border-radius:1.2rem;width:min(22vh,24vw);padding:.4rem;cursor:pointer;text-align:center}
+.opcion:hover{border-color:var(--amarillo)}
+.opcion.bien{border-color:var(--verde);background:var(--verde-claro)}
+.opcion .img{aspect-ratio:1}
+.opcion .pal{font-size:1.2rem;font-weight:700}
+/* Canasta */
+.zona-canasta{display:flex;gap:2vw;justify-content:center;align-items:center;flex-wrap:wrap}
+.canasta{position:relative;width:min(62vh,62vw);min-height:min(36vh,40vw);background:#f6e3c2;border:6px solid #a0672f;border-radius:1rem 1rem 3rem 3rem;display:flex;flex-wrap:wrap;gap:.3rem;justify-content:center;align-content:center;padding:.6rem}
+.fruta{width:min(9vh,8vw);aspect-ratio:1;position:relative;cursor:pointer;background:none;border:0;padding:0;transition:opacity .6s,transform .6s}
+.fruta.nueva{animation:cae .7s ease-out}
+@keyframes cae{0%{transform:translateY(-14vh) scale(.6);opacity:0}100%{transform:none;opacity:1}}
+.fruta.sale{opacity:0;transform:translateY(-8vh) scale(.4)}
+.fruta .marca{position:absolute;top:-14%;right:-14%;background:var(--rojo);color:#fff;border-radius:50%;width:1.7rem;height:1.7rem;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.95rem}
+.lado{min-width:12rem;text-align:center}
+.lado .grande{font-size:4rem;line-height:1}
+.platos{display:flex;gap:1.2vw;justify-content:center;flex-wrap:wrap;margin-top:.6rem}
+.plato{width:min(26vh,22vw);text-align:center}
+.plato .cara{font-size:3rem;line-height:1}
+.plato .fondo{background:#fff;border:4px solid #bfc9c2;border-radius:50%;aspect-ratio:1;display:flex;flex-wrap:wrap;gap:.15rem;justify-content:center;align-content:center;padding:.6rem}
+.plato .fondo span{width:min(5vh,4.5vw);aspect-ratio:1;display:inline-block}
+.plato .cuantos{font-weight:800;font-size:1.4rem;color:var(--verde);min-height:1.9rem}
+.marco{display:grid;grid-template-columns:repeat(5,1.4rem);gap:.25rem;justify-content:center}
+.marco i{width:1.4rem;height:1.4rem;border-radius:50%;border:2px solid var(--verde);display:block}
+.marco i.lleno{background:var(--verde)}
+</style>
+
+<div class="bp-menu no-imprimir" id="menu">
+  <button data-modo="dados"><span class="ico">🎲</span>Dados que cuentan</button>
+  <button data-modo="sonidos"><span class="ico">🎵</span>¿Rima? ¿Empieza igual?</button>
+  <button data-modo="canasta"><span class="ico">🧺</span>Agrega, quita y reparte</button>
+  <button class="sec2" id="bPant">⛶ Pantalla completa</button>
+</div>
+
+<section id="escena" aria-live="polite">
+
+  <!-- DADOS QUE CUENTAN -->
+  <div id="m-dados" class="oculto">
+    <details class="ayuda"><summary>Cómo se juega (para la maestra)</summary>
+      Un niño toca «Lanzar los dados» (o un dado solo, para cambiarlo). El dado rojo dice quién, el azul dónde y el morado qué pasó. Con lo que salió, el grupo inventa un cuento siguiendo la ruta de abajo: «Había una vez…» (quién y dónde), «Pero un día…» (el problema) y «Y al final…» (cómo se resolvió). La maestra toca cada parte de la ruta cuando el grupo la cuenta. Teclas: espacio lanza · 1, 2, 3 cambian un dado · flechas mueven la ruta.
+    </details>
+    <div class="dados">
+      <div class="dado d1" data-dado="0"><div class="tit">🎭 ¿Quién?</div><div class="cara" id="dc0"></div><div class="pal" id="dp0"></div></div>
+      <div class="dado d2" data-dado="1"><div class="tit">🏡 ¿Dónde?</div><div class="cara" id="dc1"></div><div class="pal" id="dp1"></div></div>
+      <div class="dado d3" data-dado="2"><div class="tit">⚡ ¿Qué pasó?</div><div class="cara" id="dc2"></div><div class="pal" id="dp2"></div></div>
+    </div>
+    <div class="barra"><button id="dLanza" style="font-size:1.3rem;padding:.7rem 1.4rem">🎲 Lanzar los dados</button></div>
+    <div class="ruta" id="ruta">
+      <button data-r="0">1 · Había una vez…</button>
+      <button data-r="1">2 · Pero un día…</button>
+      <button data-r="2">3 · Y al final…</button>
+    </div>
+    <div class="resultado" id="dRes"></div>
+  </div>
+
+  <!-- SONIDOS -->
+  <div id="m-sonidos" class="oculto">
+    <details class="ayuda"><summary>Cómo se juega (para la maestra)</summary>
+      Arriba se elige el juego: «¿Rima con…?» (palabras que terminan igual) o «¿Empieza como…?» (palabras que empiezan igual). La maestra dice despacio, en voz alta, el nombre del dibujo grande y el de las tres opciones, alargando el sonido («gaaa-to», «paaa-to»). El equipo de turno conversa y elige; la maestra toca la opción. Si aciertan, ganan un punto; si no, la opción se sacude y le toca al otro equipo. Teclas: 1, 2, 3 eligen · espacio otra palabra.
+    </details>
+    <div class="sel" id="sTipo">
+      <button class="sec2" data-tipo="rima">¿Rima con…?</button>
+      <button class="sec2" data-tipo="empieza">¿Empieza como…?</button>
+    </div>
+    <div class="equipos">
+      <div class="equipo eq-a" id="sEqA">🦎 Iguanas <span id="spA">0</span></div>
+      <div class="equipo eq-b" id="sEqB">🐦 Garzas <span id="spB">0</span></div>
+    </div>
+    <div class="objetivo"><div class="dibujo" id="sObj"></div><div><div class="pregunta" id="sPreg"></div><div class="nombre" id="sNom"></div></div></div>
+    <div class="opciones" id="sOps"></div>
+    <div class="resultado" id="sRes"></div>
+    <div class="barra"><button id="sSig">Otra palabra ▶</button><span class="nota" id="sCuenta"></span></div>
+  </div>
+
+  <!-- CANASTA -->
+  <div id="m-canasta" class="oculto">
+    <details class="ayuda"><summary>Cómo se juega (para la maestra)</summary>
+      «Agregar»: en la canasta hay unas frutas y llegan más; antes de tocar «¡Que lleguen!», el grupo dice cuántas cree que habrá. «Quitar»: Mati se come algunas; el grupo predice cuántas quedan antes de tocar «¡Que se las coma!». Después se cuentan en voz alta mientras la maestra toca cada fruta, y «¿Cuántas hay?» comprueba. «Repartir»: la maestra toca cada fruta y va a los platos por turnos («una para ti, una para ti…»); al final el grupo dice cuántas le tocaron a cada uno y si sobró alguna. Teclas: Enter el paso siguiente · espacio otra ronda.
+    </details>
+    <div class="sel" id="cTipo">
+      <button class="sec2" data-ct="agregar">➕ Agregar</button>
+      <button class="sec2" data-ct="quitar">➖ Quitar</button>
+      <button class="sec2" data-ct="repartir">🍽️ Repartir</button>
+      <span style="width:1rem"></span>
+      <button class="sec2" data-fr="0">🥭</button><button class="sec2" data-fr="1">🍌</button><button class="sec2" data-fr="2">🍪</button><button class="sec2" data-fr="3">🌰</button>
+      <span style="width:1rem"></span>
+      <button class="sec2" data-cr="5">Hasta 5</button><button class="sec2" data-cr="10">Hasta 10</button>
+    </div>
+    <div class="zona-canasta">
+      <div class="lado" id="cIzq"></div>
+      <div class="canasta" id="canasta"></div>
+      <div class="lado" id="cDer"></div>
+    </div>
+    <div class="platos" id="platos"></div>
+    <div class="resultado" id="cRes"></div>
+    <div class="barra"><button id="cAccion"></button><button class="sec2" id="cVer">¿Cuántas hay?</button><button id="cSig">Otra ronda ▶</button></div>
+  </div>
+
+  <div id="inicio" class="tarjeta-grande" style="min-height:60vh">
+    <div class="dibujo" id="iDib"></div>
+    <div class="nombre">Los cuentos de Mati</div>
+    <p class="nota" style="text-align:center;max-width:44rem">Elija un juego arriba. Funciona sin señal una vez abierto. Alternativa en papel: dados de cartón con dibujos, tarjetas de palabras con dibujo y una canasta con frutas o semillas de verdad.</p>
+  </div>
+</section>
+
+<p class="nota no-imprimir">Recurso del proyecto «Atrapasueños del Bananal», Transición, periodo 4. No pide registro ni guarda datos.</p>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const S=c=>`<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img">${c}</svg>`;
+const EM=e=>S(`<text x="100" y="168" font-size="160" text-anchor="middle">${e}</text>`);
+const EM2=(a,b)=>S(`<text x="62" y="150" font-size="110" text-anchor="middle">${a}</text><text x="140" y="178" font-size="110" text-anchor="middle">${b}</text>`);
+const BANANAL=S('<rect width="200" height="200" fill="#e8f6fd"/><rect y="182" width="200" height="18" fill="#7a5230"/>'+[[40,.75],[160,.7],[100,1]].map(([x,s])=>`<g transform="translate(${x} 190) scale(${s}) translate(-100 -190)"><rect x="92" y="80" width="16" height="110" rx="5" fill="#7d9b3a"/><path d="M100 84 Q45 50 15 78 Q55 76 100 92Z" fill="#4caf50"/><path d="M100 84 Q160 40 190 70 Q148 72 100 92Z" fill="#43a047"/><path d="M100 82 Q82 22 55 18 Q80 50 98 90Z" fill="#66bb6a"/><path d="M100 82 Q128 20 156 24 Q126 52 102 90Z" fill="#5cb85c"/></g>`).join(''));
+const PALO_MANGO=S('<rect width="200" height="200" fill="#e8f6fd"/><rect y="182" width="200" height="18" fill="#7a5230"/><rect x="88" y="100" width="24" height="86" rx="6" fill="#7a4f22"/><circle cx="100" cy="78" r="62" fill="#2e7d32"/><circle cx="60" cy="96" r="34" fill="#388e3c"/><circle cx="142" cy="94" r="34" fill="#388e3c"/>'+[[70,80],[120,66],[100,104],[140,110],[56,112]].map(p=>`<ellipse cx="${p[0]}" cy="${p[1]}" rx="9" ry="12" fill="#f39c12"/>`).join(''));
+function barajar(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+let ctx=null;
+function son(bien,vol){try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';const t=ctx.currentTime;o.frequency.setValueAtTime(bien?660:220,t);if(bien)o.frequency.linearRampToValueAtTime(990,t+.15);g.gain.setValueAtTime((vol||.6)*.25,t);g.gain.exponentialRampToValueAtTime(.001,t+.35);o.connect(g).connect(ctx.destination);o.start(t);o.stop(t+.36)}catch(e){}}
+const espera=ms=>new Promise(r=>setTimeout(r,ms));
+
+// ---------- Dados que cuentan ----------
+const CARAS=[
+ [['Mati, la iguana',EM('🦎')],['una niña',EM('👧')],['un abuelo',EM('👴')],['un perro',EM('🐕')],['una mariposa',EM('🦋')],['un sapo',EM('🐸')],['una gallina',EM('🐔')],['un niño',EM('👦')]],
+ [['en el bananal',BANANAL],['en la escuela',EM('🏫')],['en la huerta',EM('🌱')],['en la cancha',EM('⚽')],['en la casa',EM('🏠')],['en el palo de mango',PALO_MANGO]],
+ [['se perdió',EM('❓')],['llovió muy fuerte',EM('🌧️')],['tenía mucha hambre',EM('🍽️')],['perdió a su amigo',EM('😢')],['oyó un ruido de noche',EM('🌙')],['encontró un huevo misterioso',EM('🥚')],['se le rompió algo',EM('🧩')],['había una fiesta',EM('🎉')]]
+];
+const actual=[0,0,0];let lanzando=false,paso=-1;
+function pintarDado(i){const c=CARAS[i][actual[i]];$('dc'+i).innerHTML=c[1];$('dp'+i).textContent=c[0]}
+async function lanzar(cuales){if(lanzando)return;lanzando=true;$('dRes').textContent='';
+  cuales.forEach(i=>$('dc'+i).classList.add('girando'));
+  for(let k=0;k<8;k++){cuales.forEach(i=>{actual[i]=Math.floor(Math.random()*CARAS[i].length);pintarDado(i)});son(true,.12);await espera(110)}
+  cuales.forEach(i=>$('dc'+i).classList.remove('girando'));son(true);lanzando=false;
+  if(cuales.length===3){paso=-1;pintarRuta()}
+  const q=CARAS[0][actual[0]][0];$('dRes').textContent='Había una vez '+q+(q.includes(',')?',':'')+' que estaba '+CARAS[1][actual[1]][0]+'… Pero un día '+CARAS[2][actual[2]][0]+'. ¿Y al final?'}
+function pintarRuta(){document.querySelectorAll('[data-r]').forEach(b=>{const r=+b.dataset.r;b.classList.toggle('activo',r===paso);b.classList.toggle('hecho',r<paso)})}
+document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{paso=+b.dataset.r;pintarRuta();son(true,.3);if(paso===2){$('dRes').textContent='¿Cómo se resolvió? ¡Inventen el final!'}});
+document.querySelectorAll('[data-dado]').forEach(d=>d.onclick=()=>lanzar([+d.dataset.dado]));
+$('dLanza').onclick=()=>lanzar([0,1,2]);
+
+// ---------- ¿Rima? ¿Empieza igual? ----------
+const P={gato:'🐈',pato:'🦆',perro:'🐕',sol:'☀️',mano:'✋',banano:'🍌',casa:'🏠',luna:'🌙',caracol:'🐌',mango:'🥭',flor:'🌸',ratón:'🐭',balón:'⚽',piña:'🍍',estrella:'⭐',botella:'🍾',tambor:'🥁',taza:'☕',niña:'👧',iguana:'🦎',ventana:'🪟',cama:'🛏️',rama:'🌿',sopa:'🍲',papa:'🥔',lupa:'🔍',gallina:'🐔',pera:'🍐',mariposa:'🦋',manzana:'🍎'};
+const JUEGOS={
+ rima:[['gato','pato','perro','sol'],['mano','banano','casa','luna'],['sol','caracol','mango','flor'],['ratón','balón','gato','piña'],['estrella','botella','tambor','mano'],['casa','taza','perro','sol'],['flor','tambor','casa','pato'],['piña','niña','luna','gato'],['iguana','ventana','banano','flor'],['cama','rama','pato','piña']],
+ empieza:[['mango','mano','sol','pato'],['sopa','sol','casa','luna'],['pato','papa','gato','flor'],['casa','caracol','mano','perro'],['luna','lupa','piña','taza'],['tambor','taza','banano','gato'],['banano','balón','sopa','luna'],['gato','gallina','mango','tambor'],['perro','pera','casa','sol'],['mariposa','manzana','pato','luna']]
+};
+let sTipo='rima',sOrden=[],si=0,sResp=false,sTurno='A';const sp={A:0,B:0};let sOpc=[];
+function marcarTipo(){document.querySelectorAll('[data-tipo]').forEach(b=>b.classList.toggle('activo',b.dataset.tipo===sTipo))}
+function nuevaPal(){marcarTipo();const L=JUEGOS[sTipo];if(!sOrden.length||si>=L.length){sOrden=barajar(L.map((_,i)=>i));si=0}
+  const [obj,ok,d1,d2]=L[sOrden[si]];sResp=false;sOpc=barajar([ok,d1,d2]);
+  $('sObj').innerHTML=EM(P[obj]);$('sNom').textContent=obj;$('sPreg').textContent=sTipo==='rima'?'¿Qué rima con…':'¿Qué empieza como…';
+  $('sOps').innerHTML=sOpc.map((w,i)=>`<div class="opcion" data-op="${i}"><div class="img">${EM(P[w])}</div><div class="pal">${i+1} · ${w}</div></div>`).join('');
+  document.querySelectorAll('[data-op]').forEach(o=>o.onclick=()=>elegir(+o.dataset.op));
+  $('sRes').textContent=`Turno de ${sTurno==='A'?'🦎 las Iguanas':'🐦 las Garzas'}`;pintarTurno();$('sCuenta').textContent=`${si+1} de ${L.length}`}
+function pintarTurno(){$('sEqA').classList.toggle('turno',sTurno==='A');$('sEqB').classList.toggle('turno',sTurno==='B');$('spA').textContent=sp.A;$('spB').textContent=sp.B}
+function elegir(i){if(sResp)return;const L=JUEGOS[sTipo],[obj,ok]=L[sOrden[si]],el=document.querySelector(`[data-op="${i}"]`);
+  if(sOpc[i]===ok){sResp=true;el.classList.add('bien','salta');sp[sTurno]++;son(true);
+    $('sRes').textContent=sTipo==='rima'?`¡Sí! ${obj} y ${ok} terminan igual. 🎉`:`¡Sí! ${obj} y ${ok} empiezan igual. 🎉`;sTurno=sTurno==='A'?'B':'A';pintarTurno()}
+  else{el.classList.remove('sacude');void el.offsetWidth;el.classList.add('sacude');son(false);sTurno=sTurno==='A'?'B':'A';pintarTurno();
+    $('sRes').textContent=`Escuchen otra vez: ${obj}… ${sOpc[i]}. Le toca a ${sTurno==='A'?'🦎 las Iguanas':'🐦 las Garzas'}.`}}
+document.querySelectorAll('[data-tipo]').forEach(b=>b.onclick=()=>{sTipo=b.dataset.tipo;sOrden=[];nuevaPal()});
+$('sSig').onclick=()=>{si++;nuevaPal()};
+
+// ---------- Agrega, quita y reparte ----------
+const FR=['🥭','🍌','🍪','🌰'],FRN=['mangos','bananos','galletas','semillas'],AMIGOS=['🦎','🐦','👧','👦'];
+let ct='agregar',fr=0,cr=5,base=0,mov=0,fase=0,contadas=0,nPlatos=0,reparto=[],turnoPlato=0;
+function marcarC(){document.querySelectorAll('[data-ct]').forEach(b=>b.classList.toggle('activo',b.dataset.ct===ct));document.querySelectorAll('[data-fr]').forEach(b=>b.classList.toggle('activo',+b.dataset.fr===fr));document.querySelectorAll('[data-cr]').forEach(b=>b.classList.toggle('activo',+b.dataset.cr===cr))}
+const azar=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+function fruta(clase){const b=document.createElement('button');b.className='fruta '+(clase||'');b.innerHTML=EM(FR[fr]);b.onclick=()=>tocarFruta(b);return b}
+function marco(n){let h='<div class="marco">';for(let i=0;i<Math.max(1,Math.ceil(n/5))*5;i++)h+=`<i class="${i<n?'lleno':''}"></i>`;return h+'</div>'}
+function nuevaRonda(){marcarC();fase=0;contadas=0;$('canasta').innerHTML='';$('platos').innerHTML='';$('cIzq').innerHTML='';$('cDer').innerHTML='';$('cRes').textContent='';$('cVer').classList.remove('oculto');
+  if(ct==='agregar'){base=azar(1,cr===5?3:6);mov=azar(1,cr===5?5-base:Math.min(4,10-base));
+    for(let i=0;i<base;i++)$('canasta').appendChild(fruta());
+    $('cIzq').innerHTML=`<div class="grande">🧺</div><div class="nombre" style="font-size:1.2rem">Hay ${base}</div>`;
+    $('cDer').innerHTML=`<div class="grande">${FR[fr].repeat(mov)}</div><div class="nombre" style="font-size:1.2rem">Llegan ${mov} más</div>`;
+    $('cAccion').textContent='➕ ¡Que lleguen!';$('cRes').textContent=`Hay ${base} ${FRN[fr]} y llegan ${mov} más. ¿Cuántos habrá?`}
+  else if(ct==='quitar'){base=azar(cr===5?3:5,cr);mov=azar(1,Math.min(cr===5?2:4,base-1));
+    for(let i=0;i<base;i++)$('canasta').appendChild(fruta());
+    $('cIzq').innerHTML=`<div class="grande">🧺</div><div class="nombre" style="font-size:1.2rem">Hay ${base}</div>`;
+    $('cDer').innerHTML=`<div class="grande">🦎</div><div class="nombre" style="font-size:1.2rem">Mati se come ${mov}</div>`;
+    $('cAccion').textContent='➖ ¡Que se las coma!';$('cRes').textContent=`Hay ${base} ${FRN[fr]} y Mati se come ${mov}. ¿Cuántos quedarán?`}
+  else{nPlatos=azar(2,cr===5?2:4);base=cr===5?azar(4,6):azar(6,10);reparto=Array(nPlatos).fill(0);turnoPlato=0;$('cVer').classList.add('oculto');
+    for(let i=0;i<base;i++)$('canasta').appendChild(fruta());
+    $('platos').innerHTML=Array.from({length:nPlatos},(_,i)=>`<div class="plato"><div class="cara">${AMIGOS[i]}</div><div class="fondo" id="pl${i}"></div><div class="cuantos" id="pc${i}"></div></div>`).join('');
+    $('cAccion').textContent='¿Cuántos le tocaron?';$('cRes').textContent=`Repartimos ${base} ${FRN[fr]} entre ${nPlatos} amigos: «uno para ti, uno para ti…». Toquen cada fruta.`}
+}
+async function accion(){
+  if(ct==='agregar'&&fase===0){fase=1;for(let i=0;i<mov;i++){$('canasta').appendChild(fruta('nueva'));son(true,.3);await espera(450)}borrarMarcas();$('cRes').textContent='Ahora cuenten tocando cada uno. ¿Cuántos hay?'}
+  else if(ct==='quitar'&&fase===0){fase=1;const fs=[...$('canasta').children].slice(-mov);for(const f of fs){f.classList.add('sale');son(false,.3);await espera(500)}await espera(300);fs.forEach(f=>f.remove());borrarMarcas();$('cRes').textContent='Ahora cuenten los que quedaron tocando cada uno.'}
+  else if(ct==='repartir'){const quedan=[...$('canasta').children].filter(f=>!f.classList.contains('sale')).length;
+    if(turnoPlato!==0||quedan>base%nPlatos){$('cRes').textContent='Todavía quedan en la canasta. ¿Alcanzan para otra vuelta?';son(false);return}
+    reparto.forEach((n,i)=>$('pc'+i).textContent=n);const sobra=quedan;
+    $('cRes').textContent=`A cada uno le tocaron ${Math.floor(base/nPlatos)}.`+(sobra?(sobra===1?' Sobró 1: ¿qué hacemos con él?':` Sobraron ${sobra}: ¿qué hacemos con ellos?`):' ¡No sobró ninguno! 🎉');son(true)}
+}
+function borrarMarcas(){contadas=0;[...$('canasta').children].forEach(f=>{const m=f.querySelector('.marca');if(m)m.remove();f.dataset.c=''})}
+function tocarFruta(b){
+  if(ct==='repartir'){if(b.classList.contains('sale'))return;const sobra=base%nPlatos,quedan=$('canasta').children.length;
+    if(sobra&&quedan<=sobra&&turnoPlato===0){$('cRes').textContent=quedan===1?'Queda 1: no alcanza para darle uno a cada amigo. ¡Sobra 1!':`Quedan ${quedan}: no alcanzan para darle uno a cada amigo. ¡Sobran ${quedan}!`;son(false);return}
+    b.classList.add('sale');son(true,.3);const i=turnoPlato;setTimeout(()=>{b.remove();reparto[i]++;const s=document.createElement('span');s.innerHTML=EM(FR[fr]);$('pl'+i).appendChild(s)},350);
+    $('cRes').textContent=`Uno para ${AMIGOS[i]}…`;turnoPlato=(turnoPlato+1)%nPlatos;return}
+  if(b.dataset.c)return;contadas++;b.dataset.c='1';const m=document.createElement('span');m.className='marca';m.textContent=contadas;b.appendChild(m);son(true,.25)}
+function ver(){if(ct==='repartir')return;const n=$('canasta').children.length;
+  $('cDer').innerHTML=`<div class="grande" style="font-size:4.5rem;color:var(--verde);font-weight:800">${n}</div>${marco(n)}`;
+  if(ct==='agregar'&&fase===1)$('cRes').textContent=`${base} y ${mov} más son ${n}. 🎉`;else if(ct==='quitar'&&fase===1)$('cRes').textContent=`Había ${base}, Mati se comió ${mov} y quedan ${n}. 🎉`;else $('cRes').textContent=`Hay ${n}.`;
+  $('canasta').classList.add('salta');setTimeout(()=>$('canasta').classList.remove('salta'),1100);son(true)}
+document.querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>{ct=b.dataset.ct;nuevaRonda()});
+document.querySelectorAll('[data-fr]').forEach(b=>b.onclick=()=>{fr=+b.dataset.fr;nuevaRonda()});
+document.querySelectorAll('[data-cr]').forEach(b=>b.onclick=()=>{cr=+b.dataset.cr;nuevaRonda()});
+$('cAccion').onclick=accion;$('cVer').onclick=ver;$('cSig').onclick=nuevaRonda;
+
+// ---------- Menú, pantalla completa y teclado ----------
+$('iDib').innerHTML=EM('🦎');
+let modo=null;
+function abrir(m){modo=m;['dados','sonidos','canasta'].forEach(x=>$('m-'+x).classList.toggle('oculto',x!==m));$('inicio').classList.add('oculto');
+  document.querySelectorAll('[data-modo]').forEach(b=>b.classList.toggle('activo',b.dataset.modo===m));
+  if(m==='dados'&&!$('dc0').innerHTML){[0,1,2].forEach(pintarDado);pintarRuta()}if(m==='sonidos'&&!$('sObj').innerHTML)nuevaPal();if(m==='canasta'&&!$('canasta').children.length&&!$('platos').children.length)nuevaRonda()}
+document.querySelectorAll('[data-modo]').forEach(b=>b.onclick=()=>abrir(b.dataset.modo));
+$('bPant').onclick=()=>{const e=$('escena');(e.requestFullscreen||e.webkitRequestFullscreen||function(){}).call(e)};
+document.addEventListener('keydown',ev=>{
+  if(modo==='dados'){if(ev.key===' '){ev.preventDefault();lanzar([0,1,2])}else if(/^[1-3]$/.test(ev.key))lanzar([+ev.key-1]);else if(ev.key==='ArrowRight'){paso=Math.min(2,paso+1);pintarRuta()}else if(ev.key==='ArrowLeft'){paso=Math.max(-1,paso-1);pintarRuta()}}
+  else if(modo==='sonidos'){if(/^[1-3]$/.test(ev.key))elegir(+ev.key-1);else if(ev.key===' '){ev.preventDefault();si++;nuevaPal()}}
+  else if(modo==='canasta'){if(ev.key==='Enter'){ev.preventDefault();accion()}else if(ev.key===' '){ev.preventDefault();nuevaRonda()}}
+});
+const q=new URLSearchParams(location.search).get('juego');if(q&&['dados','sonidos','canasta'].includes(q))abrir(q);
+})();
+</script>
