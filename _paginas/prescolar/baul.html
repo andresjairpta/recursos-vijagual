@@ -1,0 +1,263 @@
+<!-- titulo: El baúl en pantalla · Transición | descripcion: Tres juegos para el televisor de Transición: ¿antes o ahora?, adivinanzas que se destapan y Mati robot. | modo: tv -->
+<style>
+.bp-menu{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin:.3rem 0 .6rem}
+.bp-menu button{font-size:1rem;padding:.6rem 1.2rem;border-radius:1rem;display:flex;align-items:center;gap:.6rem}
+.bp-menu button.activo{background:var(--amarillo);color:var(--tinta)}
+.bp-menu .ico{font-size:1.8rem}
+#escena{background:#fff;border:3px solid var(--verde);border-radius:1.2rem;min-height:68vh;padding:1rem 1.2rem;position:relative}
+#escena:fullscreen{min-height:100vh;border:0;border-radius:0;padding:2vh 3vw;font-size:1.3em}
+.ayuda{background:var(--verde-claro);border-radius:.8rem;padding:.3rem .9rem;font-size:.72rem;color:var(--tinta);margin-bottom:.4rem}
+.ayuda summary{cursor:pointer;font-weight:700;color:var(--verde)}
+.barra{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;margin:.4rem 0}
+.barra button{font-size:.95rem}
+.equipos{display:flex;gap:1rem;justify-content:center;margin:0 0 .2rem}
+.equipo{border-radius:1rem;padding:.3rem 1rem;font-weight:800;font-size:1.2rem;display:flex;gap:.6rem;align-items:center}
+.eq-a{background:#e6f2ea;color:#1f6b3a}.eq-b{background:#fdf1d0;color:#8a6200}
+.equipo button{padding:.2rem .7rem;font-size:1.2rem}
+.tarjeta-grande{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem}
+.dibujo{width:min(36vh,40vw);height:min(36vh,40vw);display:flex;align-items:center;justify-content:center;font-size:min(26vh,30vw);line-height:1}
+.fila-antes{display:flex;align-items:center;justify-content:center;gap:2vw}
+.fila-antes>button{font-size:1.7rem;padding:1.4rem 1.6rem;border-radius:1.2rem;min-width:10rem}
+.dibujo svg{width:100%;height:100%}
+.nombre{font-size:2rem;font-weight:800;color:var(--verde);text-align:center}
+.dos{display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap}
+.dos button{font-size:1.6rem;padding:1rem 2rem;border-radius:1.2rem;min-width:12rem}
+.b-antes{background:#8b5a2b}.b-ahora{background:#1f6b8a}
+.resultado{font-size:1.7rem;font-weight:800;text-align:center;min-height:2.4rem}
+.par{display:flex;gap:1.4rem;align-items:center;justify-content:center}
+.par .mini{width:min(22vh,34vw);height:min(22vh,34vw);font-size:min(16vh,26vw);display:flex;align-items:center;justify-content:center}
+.par .mini svg{width:100%;height:100%}
+.flecha-par{font-size:3rem;color:var(--suave)}
+.tapa-marco{position:relative;width:min(44vh,80vw);height:min(44vh,80vw);margin:0 auto;border-radius:1rem;overflow:hidden;background:#fff}
+.tapa-marco .dibujo{width:100%;height:100%;font-size:min(32vh,58vw)}
+.tapas{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr)}
+.tapas button{border-radius:0;border:3px solid #fff;font-size:2.4rem;font-weight:800;padding:0;transition:opacity .4s}
+.tapas button.ida{opacity:0;pointer-events:none}
+.t0{background:#c0392b}.t1{background:#e67e22}.t2{background:#f2c230;color:#1d2b22!important}.t3{background:#27ae60}.t4{background:#2980b9}.t5{background:#8e44ad}
+.texto-adiv{font-size:.95rem;text-align:center;color:var(--suave);max-width:46rem;margin:.4rem auto}
+.cuadricula{display:grid;gap:.35rem;margin:0 auto;width:min(50vh,92vw);aspect-ratio:1}
+#escena:fullscreen .cuadricula{width:min(80vh,92vw)}
+.celda{background:#eaf4dd;border-radius:.6rem;display:flex;align-items:center;justify-content:center;font-size:min(7vh,9vw);line-height:1}
+.celda.camino{background:#f5e6c4}
+.programa{display:flex;flex-wrap:wrap;gap:.3rem;justify-content:center;min-height:3.4rem;align-items:center;background:#f7f7f2;border-radius:.8rem;padding:.3rem .6rem;margin:.4rem auto;max-width:52rem}
+.programa span{font-size:2.2rem;background:#fff;border:2px solid var(--borde);border-radius:.5rem;padding:0 .3rem}
+.programa span.actual{background:var(--amarillo)}
+.flechas{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.flechas button{font-size:2.4rem;padding:.2rem 1rem;border-radius:.8rem}
+.robot-cols{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;align-items:flex-start}
+@keyframes saltito{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+.salta{animation:saltito .5s 2}
+.oculto{display:none!important}
+</style>
+
+<div class="bp-menu no-imprimir" id="menu">
+  <button data-modo="antes"><span class="ico">⏳</span>¿Antes o ahora?</button>
+  <button data-modo="adivina"><span class="ico">🎩</span>Adivinanzas que se destapan</button>
+  <button data-modo="robot"><span class="ico">🦎</span>Mati robot</button>
+  <button class="sec2" id="bPant">⛶ Pantalla completa</button>
+</div>
+
+<section id="escena" aria-live="polite">
+
+  <!-- ¿ANTES O AHORA? -->
+  <div id="m-antes" class="oculto">
+    <details class="ayuda"><summary>Cómo se juega (para la maestra)</summary>
+      Dos equipos: Iguanas y Garzas. Aparece un objeto; la maestra dice su nombre en voz alta y el equipo de turno decide si es de <b>antes</b> (de cuando los abuelos eran niños) o de <b>ahora</b>. La maestra toca el botón que eligió el equipo. Si aciertan, ganan un punto y aparece su «pariente»: el objeto que hace lo mismo en el otro tiempo. Teclas: ← antes · → ahora · espacio siguiente.
+    </details>
+    <div class="equipos">
+      <div class="equipo eq-a">🦎 Iguanas <span id="pA">0</span> <button class="sec2" data-eq="A">+</button></div>
+      <div class="equipo eq-b">🐦 Garzas <span id="pB">0</span> <button class="sec2" data-eq="B">+</button></div>
+    </div>
+    <div class="tarjeta-grande">
+      <div class="fila-antes">
+        <button class="b-antes" id="bAntes">⏳<br>Antes</button>
+        <div><div class="dibujo" id="aDib"></div><div class="nombre" id="aNom"></div></div>
+        <button class="b-ahora" id="bAhora">⚡<br>Ahora</button>
+      </div>
+      <div class="resultado" id="aRes"></div>
+      <div class="par oculto" id="aPar"><div class="mini" id="aP1"></div><div class="flecha-par">⇄</div><div class="mini" id="aP2"></div></div>
+      <div class="barra"><button id="aSig">Siguiente objeto ▶</button><span class="nota" id="aCuenta"></span></div>
+    </div>
+  </div>
+
+  <!-- ADIVINANZAS -->
+  <div id="m-adivina" class="oculto">
+    <details class="ayuda"><summary>Cómo se juega (para la maestra)</summary>
+      La maestra lee la adivinanza (aparece abajo en letra pequeña, solo para ella). Los niños dicen un número del 1 al 6 y ella destapa ese pedazo. Después de cada pedazo pregunta: «¿Ya saben qué es?». Al final toca «Mostrar todo». Teclas: 1 a 6 destapan · espacio siguiente.
+    </details>
+    <div class="tapa-marco"><div class="dibujo" id="dDib"></div><div class="tapas" id="tapas"></div></div>
+    <p class="texto-adiv" id="dTexto"></p>
+    <div class="resultado" id="dRes"></div>
+    <div class="barra"><button class="sec2" id="dTodo">Mostrar todo</button><button id="dSig">Otra adivinanza ▶</button><span class="nota" id="dCuenta"></span></div>
+  </div>
+
+  <!-- MATI ROBOT -->
+  <div id="m-robot" class="oculto">
+    <details class="ayuda"><summary>Cómo se juega (para la maestra)</summary>
+      Mati quiere llegar a la escuela 🏫 sin pisar los charcos 💧 ni chocar con los árboles 🌳. Los niños dicen las flechas y la maestra las va poniendo en el programa; cuando el programa está listo, tocan «¡Anda, Mati!». Si Mati se equivoca, vuelve al inicio y se corrige el programa. Antes de jugar en la pantalla, se juega con el cuerpo: un niño es el robot y los demás le dan las flechas. Teclas: flechas para programar · Enter anda · Retroceso borra.
+    </details>
+    <div class="barra"><span class="nota">Nivel</span><span id="rNivel" style="font-weight:800;font-size:1.3rem"></span><button class="sec2" id="rAnt">◀ Nivel</button><button class="sec2" id="rSigN">Nivel ▶</button></div>
+    <div class="robot-cols">
+      <div class="cuadricula" id="cuad"></div>
+      <div style="min-width:16rem;flex:1;max-width:30rem">
+        <div class="programa" id="prog"></div>
+        <div class="flechas">
+          <button data-f="arriba">⬆️</button><button data-f="izq">⬅️</button><button data-f="der">➡️</button><button data-f="abajo">⬇️</button>
+        </div>
+        <div class="barra"><button id="rAnda">▶ ¡Anda, Mati!</button><button class="sec2" id="rBorra">⌫ Borrar una</button><button class="sec2" id="rLimpia">Empezar otra vez</button></div>
+        <div class="resultado" id="rRes"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="inicio" class="tarjeta-grande" style="min-height:60vh">
+    <div class="dibujo">🧰</div>
+    <div class="nombre">El baúl de la abuela de Mati</div>
+    <p class="nota">Elija un juego arriba. Funciona sin señal una vez abierto. Alternativa en papel: las tarjetas «Antes y ahora», las adivinanzas del sombrero y la cuadrícula de cabuya en el piso.</p>
+  </div>
+</section>
+
+<p class="nota no-imprimir">Recurso del proyecto «Nuestro territorio cuenta», Transición, periodo 2. No pide registro ni guarda datos.</p>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+// ---------- Dibujos propios (SVG sencillos) ----------
+const S=(cuerpo)=>`<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img">${cuerpo}</svg>`;
+const D={
+ totuma:S('<path d="M30 95 Q100 70 170 95 Q165 170 100 172 Q35 170 30 95Z" fill="#9b6a35"/><ellipse cx="100" cy="95" rx="70" ry="20" fill="#c99a5b"/><ellipse cx="100" cy="97" rx="58" ry="13" fill="#7a4f22"/><path d="M45 120 Q100 140 155 120" stroke="#c49a5f" stroke-width="5" fill="none"/>'),
+ batea:S('<ellipse cx="100" cy="110" rx="88" ry="38" fill="#8b5a2b"/><ellipse cx="100" cy="100" rx="78" ry="26" fill="#b07a40"/><path d="M40 98 Q100 112 160 98 M50 90 Q100 102 150 90" stroke="#8b5a2b" stroke-width="4" fill="none"/>'),
+ pilon:S('<path d="M60 70 L140 70 L125 120 L140 180 L60 180 L75 120Z" fill="#8b5a2b"/><ellipse cx="100" cy="70" rx="40" ry="10" fill="#5e3a17"/><rect x="128" y="10" width="14" height="110" rx="7" fill="#b07a40" transform="rotate(18 135 65)"/><path d="M68 150 H132" stroke="#5e3a17" stroke-width="4"/>'),
+ planchaCarbon:S('<path d="M25 150 Q40 95 120 92 L175 92 L175 150Z" fill="#3b3b3b"/><rect x="25" y="148" width="152" height="12" rx="4" fill="#222"/><path d="M80 92 Q85 40 135 40 Q165 42 165 92" stroke="#222" stroke-width="12" fill="none"/><circle cx="70" cy="125" r="5" fill="#e67e22"/><circle cx="95" cy="125" r="5" fill="#e67e22"/><circle cx="120" cy="125" r="5" fill="#e67e22"/><circle cx="145" cy="125" r="5" fill="#e67e22"/>'),
+ lampara:S('<ellipse cx="100" cy="175" rx="45" ry="12" fill="#6d5a2e"/><path d="M65 175 Q60 130 100 120 Q140 130 135 175Z" fill="#c9a227"/><rect x="88" y="105" width="24" height="18" fill="#7a6a3a"/><path d="M80 105 Q70 60 100 30 Q130 60 120 105Z" fill="#dfeff5" stroke="#9fc3cf" stroke-width="3"/><path d="M100 60 Q90 80 100 95 Q110 80 100 60Z" fill="#f39c12"/>'),
+ ollaBarro:S('<ellipse cx="100" cy="115" rx="75" ry="60" fill="#b5532c"/><ellipse cx="100" cy="62" rx="48" ry="12" fill="#7d3519"/><rect x="18" y="95" width="18" height="12" rx="6" fill="#8e3f1f"/><rect x="164" y="95" width="18" height="12" rx="6" fill="#8e3f1f"/><path d="M45 130 Q100 150 155 130" stroke="#d9805a" stroke-width="5" fill="none"/>'),
+ sombrero:S('<ellipse cx="100" cy="135" rx="92" ry="30" fill="#f4ecd8" stroke="#222" stroke-width="3"/><ellipse cx="100" cy="135" rx="72" ry="22" fill="none" stroke="#222" stroke-width="6" stroke-dasharray="10 8"/><path d="M60 132 Q62 70 100 66 Q138 70 140 132Z" fill="#f4ecd8" stroke="#222" stroke-width="3"/><path d="M64 110 H136 M62 92 H138" stroke="#222" stroke-width="6" stroke-dasharray="9 7"/>'),
+ licuadora:S('<rect x="55" y="140" width="90" height="45" rx="10" fill="#c0392b"/><circle cx="100" cy="162" r="9" fill="#fff"/><path d="M62 40 H138 L128 140 H72Z" fill="#d6eef5" stroke="#7fb3c4" stroke-width="4"/><rect x="58" y="30" width="84" height="14" rx="5" fill="#333"/><path d="M85 125 L115 110 M85 110 L115 125" stroke="#555" stroke-width="5"/>'),
+ planchaElectrica:S('<path d="M25 150 Q40 95 120 92 L175 92 L175 150Z" fill="#2e86c1"/><rect x="25" y="148" width="152" height="12" rx="4" fill="#bbb"/><path d="M85 92 Q90 55 140 55 Q165 58 165 92" stroke="#1b4f72" stroke-width="12" fill="none"/><path d="M175 120 Q195 125 190 170 Q185 195 160 192" stroke="#333" stroke-width="5" fill="none"/>'),
+ olla:S('<rect x="40" y="70" width="120" height="95" rx="14" fill="#a6acaf"/><ellipse cx="100" cy="70" rx="62" ry="12" fill="#cfd4d6"/><rect x="10" y="88" width="32" height="10" rx="5" fill="#333"/><rect x="158" y="88" width="32" height="10" rx="5" fill="#333"/>'),
+ lavadora:S('<rect x="35" y="25" width="130" height="160" rx="12" fill="#f2f4f4" stroke="#7f8c8d" stroke-width="4"/><circle cx="100" cy="115" r="45" fill="#aed6f1" stroke="#7f8c8d" stroke-width="6"/><circle cx="60" cy="45" r="6" fill="#27ae60"/><rect x="80" y="40" width="65" height="10" rx="4" fill="#bdc3c7"/>'),
+ nevera:S('<rect x="50" y="15" width="100" height="175" rx="12" fill="#ecf0f1" stroke="#7f8c8d" stroke-width="4"/><line x1="50" y1="75" x2="150" y2="75" stroke="#7f8c8d" stroke-width="4"/><rect x="132" y="35" width="6" height="25" rx="3" fill="#7f8c8d"/><rect x="132" y="95" width="6" height="40" rx="3" fill="#7f8c8d"/>'),
+ tinaja:S('<path d="M70 40 H130 L128 55 Q175 80 165 140 Q155 185 100 188 Q45 185 35 140 Q25 80 72 55Z" fill="#a0522d"/><ellipse cx="100" cy="40" rx="32" ry="8" fill="#6e3516"/>'),
+ escuela:S('<rect x="35" y="85" width="130" height="95" fill="#f5cba7"/><path d="M25 90 L100 35 L175 90Z" fill="#c0392b"/><rect x="88" y="130" width="24" height="50" fill="#7b4a1e"/><rect x="50" y="105" width="25" height="22" fill="#85c1e9"/><rect x="125" y="105" width="25" height="22" fill="#85c1e9"/><rect x="97" y="10" width="4" height="35" fill="#555"/><path d="M101 12 H125 L120 20 L125 28 H101Z" fill="#f1c40f"/>')
+};
+const E=(e)=>`<span>${e}</span>`;
+// ---------- ¿Antes o ahora? ----------
+const OBJ=[
+ {n:'Totuma',t:'antes',d:D.totuma,p:E('🥛'),pn:'vaso'},
+ {n:'Batea',t:'antes',d:D.batea,p:D.lavadora,pn:'lavadora'},
+ {n:'Pilón',t:'antes',d:D.pilon,p:D.licuadora,pn:'licuadora'},
+ {n:'Plancha de carbón',t:'antes',d:D.planchaCarbon,p:D.planchaElectrica,pn:'plancha eléctrica'},
+ {n:'Lámpara de petróleo',t:'antes',d:D.lampara,p:E('💡'),pn:'bombillo'},
+ {n:'Olla de barro',t:'antes',d:D.ollaBarro,p:D.olla,pn:'olla de aluminio'},
+ {n:'Tinaja',t:'antes',d:D.tinaja,p:D.nevera,pn:'nevera'},
+ {n:'Radio de pilas',t:'antes',d:E('📻'),p:E('📱'),pn:'celular'},
+ {n:'Carta',t:'antes',d:E('✉️'),p:E('💬'),pn:'mensaje de celular'},
+ {n:'Sombrero',t:'antes',d:D.sombrero,p:E('🧢'),pn:'gorra'},
+ {n:'Licuadora',t:'ahora',d:D.licuadora,p:D.pilon,pn:'pilón'},
+ {n:'Celular',t:'ahora',d:E('📱'),p:E('📻'),pn:'radio de pilas'},
+ {n:'Bombillo',t:'ahora',d:E('💡'),p:D.lampara,pn:'lámpara de petróleo'},
+ {n:'Nevera',t:'ahora',d:D.nevera,p:D.tinaja,pn:'tinaja'},
+ {n:'Lavadora',t:'ahora',d:D.lavadora,p:D.batea,pn:'batea'},
+ {n:'Plancha eléctrica',t:'ahora',d:D.planchaElectrica,p:D.planchaCarbon,pn:'plancha de carbón'}
+];
+let orden=[],ia=0,respondido=false,turno='A';
+const pts={A:0,B:0};
+function barajar(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function pintarPuntos(){$('pA').textContent=pts.A;$('pB').textContent=pts.B}
+function nuevoAntes(){
+  if(!orden.length||ia>=orden.length){orden=barajar(OBJ.map((_,i)=>i));ia=0}
+  const o=OBJ[orden[ia]];respondido=false;
+  $('aDib').innerHTML=o.d;$('aNom').textContent=o.n;$('aRes').textContent=`Turno de ${turno==='A'?'🦎 las Iguanas':'🐦 las Garzas'}`;
+  $('aPar').classList.add('oculto');$('aCuenta').textContent=`${ia+1} de ${OBJ.length}`;
+}
+function responder(r){
+  if(respondido)return;respondido=true;const o=OBJ[orden[ia]];
+  if(r===o.t){pts[turno]++;pintarPuntos();$('aRes').textContent=`¡Muy bien! Es de ${o.t}. 🎉`;son(true);$('aDib').classList.add('salta');setTimeout(()=>$('aDib').classList.remove('salta'),1100)}
+  else{$('aRes').textContent=`Casi… es de ${o.t}. ¡Ahora le toca al otro equipo!`;son(false)}
+  $('aP1').innerHTML=o.d;$('aP2').innerHTML=o.p;$('aPar').classList.remove('oculto');
+  $('aRes').textContent+=`  Su pariente: ${o.pn}.`;
+  turno=turno==='A'?'B':'A';
+}
+$('bAntes').onclick=()=>responder('antes');$('bAhora').onclick=()=>responder('ahora');
+$('aSig').onclick=()=>{ia++;nuevoAntes()};
+document.querySelectorAll('[data-eq]').forEach(b=>b.onclick=()=>{pts[b.dataset.eq]++;pintarPuntos()});
+// ---------- Adivinanzas ----------
+const ADV=[
+ {t:'«Verde por fuera, amarillo al madurar, en racimos me encuentras en la finca del lugar.»',r:'el banano',d:E('🍌')},
+ {t:'«Tengo cresta y no soy gallo, tengo cola y no soy perro, tomo sol en el palo de mango y en la cerca me encuentro.»',r:'la iguana',d:E('🦎')},
+ {t:'«Me parten por la mitad, me raspan y me secan al sol, y en mí toma agua la abuela, ¿quién soy yo?»',r:'la totuma',d:D.totuma},
+ {t:'«Bajo de las nubes en gotas, canto en el techo de zinc, y la huerta se pone contenta cuando me ve venir.»',r:'la lluvia',d:E('🌧️')},
+ {t:'«Canto antes que salga el sol, tengo cresta colorada y despierto a la vereda con mi quiquiriquí.»',r:'el gallo',d:E('🐓')},
+ {t:'«Redondo y amarillo me asomo en la mañana y me escondo en la tarde detrás de la montaña.»',r:'el sol',d:E('☀️')},
+ {t:'«Soy pesada como piedra, tengo brasas en la barriga y alisaba la ropa de la abuela.»',r:'la plancha de carbón',d:D.planchaCarbon},
+ {t:'«Pum, pum, pum, me golpean con un palo y el maíz queda quebrado para la arepa del abuelo.»',r:'el pilón',d:D.pilon},
+ {t:'«Tengo piel de cuero y barriga de madera; si me tocas con las manos, baila toda la vereda.»',r:'el tambor',d:E('🥁')},
+ {t:'«Soy amarillo por dentro, verde y rojo por fuera; mi semilla es grande y peluda y estoy en el palo del patio.»',r:'el mango',d:E('🥭')}
+];
+let ordA=[],id=0;
+function nuevaAdiv(){
+  if(!ordA.length||id>=ordA.length){ordA=barajar(ADV.map((_,i)=>i));id=0}
+  const a=ADV[ordA[id]];$('dDib').innerHTML=a.d;$('dTexto').textContent=a.t;$('dRes').textContent='';$('dCuenta').textContent=`${id+1} de ${ADV.length}`;
+  const t=$('tapas');t.innerHTML='';for(let i=0;i<6;i++){const b=document.createElement('button');b.className='t'+i;b.textContent=i+1;b.onclick=()=>destapar(i);t.appendChild(b)}
+}
+function destapar(i){const b=$('tapas').children[i];if(b&&!b.classList.contains('ida')){b.classList.add('ida');son(true,.4)}if([...$('tapas').children].every(x=>x.classList.contains('ida')))mostrarTodo()}
+function mostrarTodo(){[...$('tapas').children].forEach(b=>b.classList.add('ida'));$('dRes').textContent='¡Es '+ADV[ordA[id]].r+'! 🎉';son(true)}
+$('dTodo').onclick=mostrarTodo;$('dSig').onclick=()=>{id++;nuevaAdiv()};
+// ---------- Mati robot ----------
+const NIV=[
+ {n:5,ini:[0,2],meta:[4,2],obs:[]},
+ {n:5,ini:[0,4],meta:[4,0],obs:[]},
+ {n:5,ini:[0,0],meta:[4,4],obs:[[2,2,'🌳'],[1,3,'💧']]},
+ {n:5,ini:[0,4],meta:[4,4],obs:[[1,4,'💧'],[2,4,'🌳'],[3,4,'💧'],[2,3,'🌳']]},
+ {n:6,ini:[0,5],meta:[5,0],obs:[[1,4,'🌳'],[2,2,'💧'],[3,3,'🌳'],[4,1,'💧'],[2,5,'🌳']]},
+ {n:6,ini:[0,0],meta:[5,5],obs:[[1,0,'🌳'],[1,1,'💧'],[3,1,'🌳'],[3,2,'🌳'],[3,3,'💧'],[1,4,'💧'],[4,4,'🌳']]}
+];
+let nv=0,pos=null,prog=[],andando=false;
+const FL={arriba:'⬆️',abajo:'⬇️',izq:'⬅️',der:'➡️'},MV={arriba:[0,-1],abajo:[0,1],izq:[-1,0],der:[1,0]};
+function celda(x,y){return $('cuad').children[y*NIV[nv].n+x]}
+function pintarCuad(){
+  const L=NIV[nv],c=$('cuad');c.style.gridTemplateColumns=`repeat(${L.n},1fr)`;c.innerHTML='';
+  for(let y=0;y<L.n;y++)for(let x=0;x<L.n;x++){const d=document.createElement('div');d.className='celda';const o=L.obs.find(o=>o[0]===x&&o[1]===y);if(o)d.textContent=o[2];if(x===L.meta[0]&&y===L.meta[1])d.innerHTML=D.escuela;c.appendChild(d)}
+  pos=[...L.ini];celda(...pos).textContent='🦎';$('rNivel').textContent=(nv+1)+' de '+NIV.length;
+}
+function pintarProg(act){$('prog').innerHTML=prog.length?prog.map((f,i)=>`<span class="${i===act?'actual':''}">${FL[f]}</span>`).join(''):'<span class="nota" style="border:0;background:none;font-size:1rem">Pongan aquí las flechas</span>'}
+function reiniciar(){prog=[];andando=false;pintarCuad();pintarProg();$('rRes').textContent=''}
+function agregar(f){if(andando||prog.length>=24)return;prog.push(f);pintarProg();son(true,.25)}
+async function anda(){
+  if(andando||!prog.length)return;andando=true;const L=NIV[nv];pintarCuad();$('rRes').textContent='';
+  for(let i=0;i<prog.length;i++){
+    pintarProg(i);await espera(650);
+    const [dx,dy]=MV[prog[i]],nx=pos[0]+dx,ny=pos[1]+dy;
+    if(nx<0||ny<0||nx>=L.n||ny>=L.n){$('rRes').textContent='¡Uy! Mati se sale del camino. Revisen la flecha '+(i+1)+'.';son(false);break}
+    const o=L.obs.find(o=>o[0]===nx&&o[1]===ny);
+    if(o){$('rRes').textContent=(o[2]==='💧'?'¡Splash! Mati pisó un charco.':'¡Pum! Mati chocó con un árbol.')+' Revisen la flecha '+(i+1)+'.';son(false);break}
+    const ant=celda(...pos);ant.textContent='';ant.classList.add('camino');pos=[nx,ny];
+    const nueva=celda(...pos);
+    if(nx===L.meta[0]&&ny===L.meta[1]){nueva.innerHTML='🦎🏫';$('rRes').textContent='¡Mati llegó a la escuela! 🎉';nueva.classList.add('salta');son(true);son(true,.8);break}
+    nueva.textContent='🦎';
+  }
+  if(!(pos[0]===L.meta[0]&&pos[1]===L.meta[1])&&!$('rRes').textContent){$('rRes').textContent='Mati se quedó en el camino. ¿Qué flechas faltan?'}
+  pintarProg();andando=false;
+}
+const espera=ms=>new Promise(r=>setTimeout(r,ms));
+document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>agregar(b.dataset.f));
+$('rAnda').onclick=anda;$('rBorra').onclick=()=>{if(!andando){prog.pop();pintarProg()}};$('rLimpia').onclick=reiniciar;
+$('rAnt').onclick=()=>{nv=(nv-1+NIV.length)%NIV.length;reiniciar()};$('rSigN').onclick=()=>{nv=(nv+1)%NIV.length;reiniciar()};
+// ---------- Sonido sencillo (sin archivos) ----------
+let ctx=null;
+function son(bien,vol){try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';const t=ctx.currentTime;o.frequency.setValueAtTime(bien?660:220,t);if(bien)o.frequency.linearRampToValueAtTime(990,t+.15);g.gain.setValueAtTime((vol||.6)*.25,t);g.gain.exponentialRampToValueAtTime(.001,t+.35);o.connect(g).connect(ctx.destination);o.start(t);o.stop(t+.36)}catch(e){}}
+// ---------- Menú, pantalla completa y teclado ----------
+let modo=null;
+function abrir(m){modo=m;['antes','adivina','robot'].forEach(x=>$('m-'+x).classList.toggle('oculto',x!==m));$('inicio').classList.add('oculto');
+  document.querySelectorAll('[data-modo]').forEach(b=>b.classList.toggle('activo',b.dataset.modo===m));
+  if(m==='antes'&&!$('aNom').textContent)nuevoAntes();if(m==='adivina'&&!$('dTexto').textContent)nuevaAdiv();if(m==='robot'&&!$('cuad').children.length)reiniciar();}
+document.querySelectorAll('[data-modo]').forEach(b=>b.onclick=()=>abrir(b.dataset.modo));
+$('bPant').onclick=()=>{const e=$('escena');(e.requestFullscreen||e.webkitRequestFullscreen||function(){}).call(e)};
+document.addEventListener('keydown',ev=>{
+  if(modo==='antes'){if(ev.key==='ArrowLeft')responder('antes');else if(ev.key==='ArrowRight')responder('ahora');else if(ev.key===' '){ev.preventDefault();ia++;nuevoAntes()}}
+  else if(modo==='adivina'){if(/^[1-6]$/.test(ev.key))destapar(+ev.key-1);else if(ev.key===' '){ev.preventDefault();id++;nuevaAdiv()}}
+  else if(modo==='robot'){const k={ArrowUp:'arriba',ArrowDown:'abajo',ArrowLeft:'izq',ArrowRight:'der'}[ev.key];if(k){ev.preventDefault();agregar(k)}else if(ev.key==='Enter')anda();else if(ev.key==='Backspace'){ev.preventDefault();if(!andando){prog.pop();pintarProg()}}}
+});
+const q=new URLSearchParams(location.search).get('juego');if(q&&['antes','adivina','robot'].includes(q))abrir(q);
+})();
+</script>
