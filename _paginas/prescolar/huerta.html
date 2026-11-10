@@ -1,0 +1,326 @@
+<!-- titulo: La huerta en pantalla · Transición | descripcion: Tres juegos para el televisor de Transición: ¿qué va primero?, ¿flota o se hunde? y ¿cuántos hay? | modo: tv -->
+<style>
+.bp-menu{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin:.3rem 0 .6rem}
+.bp-menu button{font-size:1rem;padding:.6rem 1.2rem;border-radius:1rem;display:flex;align-items:center;gap:.6rem}
+.bp-menu button.activo{background:var(--amarillo);color:var(--tinta)}
+.bp-menu .ico{font-size:1.8rem}
+#escena{background:#fff;border:3px solid var(--verde);border-radius:1.2rem;min-height:68vh;padding:1rem 1.2rem;position:relative}
+#escena:fullscreen{min-height:100vh;border:0;border-radius:0;padding:2vh 3vw;font-size:1.3em;overflow:auto}
+.ayuda{background:var(--verde-claro);border-radius:.8rem;padding:.3rem .9rem;font-size:.72rem;color:var(--tinta);margin-bottom:.4rem}
+.ayuda summary{cursor:pointer;font-weight:700;color:var(--verde)}
+.barra{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;margin:.4rem 0}
+.barra button{font-size:.95rem}
+.barra button.activo{background:var(--amarillo);color:var(--tinta)}
+.equipos{display:flex;gap:1rem;justify-content:center;margin:0 0 .2rem;flex-wrap:wrap}
+.equipo{border-radius:1rem;padding:.3rem 1rem;font-weight:800;font-size:1.2rem;display:flex;gap:.6rem;align-items:center}
+.eq-a{background:#e6f2ea;color:#1f6b3a}.eq-b{background:#fdf1d0;color:#8a6200}
+.equipo button{padding:.2rem .7rem;font-size:1.2rem}
+.tarjeta-grande{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem}
+.dibujo{width:min(36vh,40vw);height:min(36vh,40vw);display:flex;align-items:center;justify-content:center;font-size:min(26vh,30vw);line-height:1}
+svg{width:100%;height:100%;display:block}
+.nombre{font-size:1.8rem;font-weight:800;color:var(--verde);text-align:center}
+.resultado{font-size:1.6rem;font-weight:800;text-align:center;min-height:2.3rem}
+.oculto{display:none!important}
+@keyframes saltito{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.salta{animation:saltito .5s 2}
+@keyframes sacude{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-.6rem)}40%,80%{transform:translateX(.6rem)}}
+.sacude{animation:sacude .5s}
+/* ¿Qué va primero? */
+.mesa{display:flex;flex-wrap:wrap;gap:1.2vw;justify-content:center;min-height:min(26vh,22vw)}
+.carta{background:#fffdf3;border:3px solid var(--borde);border-radius:1rem;padding:.3rem;width:min(25vh,21vw);cursor:pointer;position:relative}
+.carta:hover{border-color:var(--amarillo)}
+.carta .num{position:absolute;top:.2rem;left:.4rem;font-size:.8rem;color:var(--suave);font-weight:700}
+.linea{display:flex;gap:1.2vw;justify-content:center;align-items:flex-start;margin-top:.6rem}
+.hueco{width:min(25vh,21vw);text-align:center}
+.hueco .caja{border:3px dashed var(--verde);border-radius:1rem;aspect-ratio:1;background:var(--verde-claro);display:flex;align-items:center;justify-content:center;font-size:3rem;color:var(--verde);font-weight:800;padding:.3rem}
+.hueco .caja.lleno{border-style:solid;background:#fff}
+.hueco .rot{font-weight:800;font-size:1.1rem;color:var(--verde);margin-top:.2rem}
+.flechita{font-size:2.4rem;color:var(--suave);align-self:center;margin-top:-1.6rem}
+.sel{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin:.2rem 0 .5rem}
+.sel button{font-size:.85rem;padding:.35rem .8rem}
+.sel button.activo{background:var(--amarillo);color:var(--tinta)}
+/* ¿Flota o se hunde? */
+.flota-cols{display:flex;flex-wrap:wrap;gap:2vw;justify-content:center;align-items:center}
+.tanque{position:relative;width:min(54vh,58vw);height:min(54vh,58vw);border:5px solid #9fc3cf;border-top:0;border-radius:0 0 1.4rem 1.4rem;overflow:hidden;background:#f4fbff}
+.agua{position:absolute;left:0;right:0;bottom:0;top:42%;background:linear-gradient(#7fc8ee,#2f86c4)}
+.agua::before{content:"";position:absolute;left:0;right:0;top:0;height:6%;background:repeating-linear-gradient(90deg,#b9e2f7 0 8%,#7fc8ee 8% 16%)}
+.carril{position:absolute;left:0;right:0;top:3%;height:30%;display:flex;justify-content:center;transition:top 1.3s cubic-bezier(.5,0,.8,.6)}
+.carril.flota{top:28%;transition:top .9s cubic-bezier(.4,0,.6,1.4)}
+.carril.hunde{top:69%;transition:top 2.2s cubic-bezier(.3,.2,.6,1)}
+.cosa{height:100%;aspect-ratio:1}
+.carril.flota .cosa{animation:mece 1.8s ease-in-out .9s infinite}
+@keyframes mece{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(5%) rotate(4deg)}}
+.predic{display:flex;flex-direction:column;gap:.6rem;align-items:center;min-width:18rem}
+.fila-eq{display:flex;gap:.5rem;align-items:center;border-radius:1rem;padding:.4rem .7rem;font-weight:800;font-size:1.1rem}
+.fila-eq button{font-size:1rem;padding:.5rem .8rem;background:#fff;color:var(--tinta);border:2px solid var(--borde)}
+.fila-eq button.activo{background:var(--amarillo);border-color:#b58d00}
+.b-agua{font-size:1.6rem!important;padding:.8rem 1.6rem!important;background:#2f86c4!important}
+.bandeja{display:flex;flex-wrap:wrap;gap:.3rem;justify-content:center;margin:.2rem 0 .5rem}
+.bandeja button{width:3.2rem;height:3.2rem;padding:.2rem;background:#fff;border:2px solid var(--borde)}
+.bandeja button.activo{border-color:var(--amarillo);background:#fff7d6}
+.bandeja button.usado{opacity:.45}
+.historial{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin-top:.6rem}
+.cesta{border:2px solid var(--borde);border-radius:1rem;padding:.3rem .8rem;min-width:16rem}
+.cesta h3{margin:.1rem 0;font-size:1rem;color:var(--verde)}
+.cesta .iconos{display:flex;flex-wrap:wrap;gap:.2rem;min-height:2.6rem}
+.cesta .iconos span{width:2.4rem;height:2.4rem;display:inline-block}
+/* ¿Cuántos hay? */
+.campos{display:flex;gap:2vw;justify-content:center;flex-wrap:wrap}
+.campo{position:relative;background:#e3f1d3;border:4px solid #9cc47a;border-radius:1.4rem;display:grid;padding:.5rem}
+.campo.uno{width:min(78vh,88vw);height:min(52vh,56vw);grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(4,1fr)}
+.campo.dos{width:min(46vh,44vw);height:min(46vh,44vw);grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr)}
+.campo.mas{border-color:var(--amarillo);box-shadow:0 0 0 6px #f2c23066}
+.ranura{position:relative;display:flex;align-items:center;justify-content:center}
+.bicho{width:78%;aspect-ratio:1;cursor:pointer;position:relative;background:none;border:0;padding:0;border-radius:50%}
+.bicho .marca{position:absolute;top:-12%;right:-12%;background:var(--rojo);color:#fff;border-radius:50%;width:1.9rem;height:1.9rem;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.05rem;box-shadow:0 2px 4px #0003}
+.bicho.contado{filter:drop-shadow(0 0 6px #f2c230)}
+.total{display:flex;gap:1.2rem;align-items:center;justify-content:center;min-height:5.2rem}
+.total .cifra{font-size:4.2rem;font-weight:800;color:var(--verde);line-height:1}
+.marco{display:grid;grid-template-columns:repeat(5,1.5rem);gap:.25rem}
+.marco i{width:1.5rem;height:1.5rem;border-radius:50%;border:2px solid var(--verde);display:block}
+.marco i.lleno{background:var(--verde)}
+.etq-campo{text-align:center;font-weight:800;font-size:1.3rem;color:var(--verde);min-height:2rem}
+</style>
+
+<div class="bp-menu no-imprimir" id="menu">
+  <button data-modo="crece"><span class="ico">🌱</span>¿Qué va primero?</button>
+  <button data-modo="flota"><span class="ico">💧</span>¿Flota o se hunde?</button>
+  <button data-modo="cuenta"><span class="ico">🐞</span>¿Cuántos hay?</button>
+  <button class="sec2" id="bPant">⛶ Pantalla completa</button>
+</div>
+
+<section id="escena" aria-live="polite">
+
+  <!-- ¿QUÉ VA PRIMERO? -->
+  <div id="m-crece" class="oculto">
+    <details class="ayuda"><summary>Cómo se juega (para la maestra)</summary>
+      Arriba aparecen cuatro dibujos revueltos. Los niños dicen cuál va primero y la maestra lo toca: si es el correcto, pasa a la fila de abajo; si no, se sacude y vuelve a su lugar para pensar otra vez. Al llenar la fila, el grupo cuenta la historia completa con «primero, después, luego y al final». Arriba se elige la secuencia. Teclas: 1 a 4 tocan los dibujos de arriba · espacio otra secuencia.
+    </details>
+    <div class="sel" id="cSel"></div>
+    <div class="mesa" id="cMesa"></div>
+    <div class="linea" id="cLinea"></div>
+    <div class="resultado" id="cRes"></div>
+    <div class="barra"><button class="sec2" id="cVer">Mostrar el orden</button><button id="cSig">Otra secuencia ▶</button></div>
+  </div>
+
+  <!-- ¿FLOTA O SE HUNDE? -->
+  <div id="m-flota" class="oculto">
+    <details class="ayuda"><summary>Cómo se juega (para la maestra)</summary>
+      Primero se prueba con agua de verdad en el platón; la pantalla sirve para repasar y para objetos que no hay en el salón. Se elige el objeto en la bandeja de arriba (los mismos que el grupo probó). Cada equipo conversa y dice su predicción: «flota» o «se hunde»; la maestra la marca. Luego toca «¡Al agua!»: el equipo que acertó gana un punto. Abajo quedan los objetos que flotaron y los que se hundieron, para contarlos. Teclas: Enter al agua · espacio otro objeto.
+    </details>
+    <div class="equipos">
+      <div class="equipo eq-a">🦎 Iguanas <span id="fpA">0</span></div>
+      <div class="equipo eq-b">🐦 Garzas <span id="fpB">0</span></div>
+    </div>
+    <div class="bandeja" id="fBand"></div>
+    <div class="flota-cols">
+      <div class="tanque" id="tanque"><div class="agua"></div><div class="carril" id="carril"><div class="cosa" id="fObj"></div></div></div>
+      <div class="predic">
+        <div class="nombre" id="fNom"></div>
+        <div class="fila-eq eq-a">🦎 <button data-pred="A:flota">⬆ Flota</button><button data-pred="A:hunde">⬇ Se hunde</button></div>
+        <div class="fila-eq eq-b">🐦 <button data-pred="B:flota">⬆ Flota</button><button data-pred="B:hunde">⬇ Se hunde</button></div>
+        <button class="b-agua" id="fAgua">💧 ¡Al agua!</button>
+        <div class="resultado" id="fRes"></div>
+        <button id="fSig">Otro objeto ▶</button>
+      </div>
+    </div>
+    <div class="historial">
+      <div class="cesta"><h3>⬆ Flotaron: <span id="hF">0</span></h3><div class="iconos" id="hFi"></div></div>
+      <div class="cesta"><h3>⬇ Se hundieron: <span id="hH">0</span></h3><div class="iconos" id="hHi"></div></div>
+    </div>
+  </div>
+
+  <!-- ¿CUÁNTOS HAY? -->
+  <div id="m-cuenta" class="oculto">
+    <details class="ayuda"><summary>Cómo se juega (para la maestra)</summary>
+      «Contar»: los niños cuentan en voz alta y la maestra toca cada bicho a la vez que lo dicen; el bicho tocado se marca con su número. Al terminar, el grupo dice cuántos hay y la maestra toca «¿Cuántos hay?» para comprobar. «¿Dónde hay más?»: primero el grupo adivina con los ojos dónde hay más; después se cuentan los dos lados y se comprueba. Teclas: Enter comprobar · espacio otra ronda.
+    </details>
+    <div class="sel" id="kQue"></div>
+    <div class="barra">
+      <button class="sec2" data-rango="5">Hasta 5</button><button class="sec2" data-rango="10">Hasta 10</button><button class="sec2" data-rango="15">Hasta 15</button>
+      <span style="width:1rem"></span>
+      <button class="sec2" data-tipo="contar">Contar</button><button class="sec2" data-tipo="comparar">¿Dónde hay más?</button>
+    </div>
+    <div class="campos" id="kCampos"></div>
+    <div class="total" id="kTotal"></div>
+    <div class="barra"><button class="sec2" id="kBorra">Borrar el conteo</button><button id="kVer">¿Cuántos hay?</button><button id="kSig">Otra ronda ▶</button></div>
+  </div>
+
+  <div id="inicio" class="tarjeta-grande" style="min-height:60vh">
+    <div class="dibujo" id="iDib"></div>
+    <div class="nombre">La huerta de Mati</div>
+    <p class="nota" style="text-align:center;max-width:44rem">Elija un juego arriba. Funciona sin señal una vez abierto. Alternativa en papel: las tarjetas de las secuencias, el platón con agua y los objetos de verdad, y semillas o bichos dibujados para contar.</p>
+  </div>
+</section>
+
+<p class="nota no-imprimir">Recurso del proyecto «Pequeños científicos de la huerta», Transición, periodo 3. No pide registro ni guarda datos.</p>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const S=c=>`<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img">${c}</svg>`;
+const EM=e=>S(`<text x="100" y="168" font-size="160" text-anchor="middle">${e}</text>`);
+// ---------- Dibujos propios ----------
+const CIELO='<rect width="200" height="118" fill="#e8f6fd"/>',TIERRA='<rect y="115" width="200" height="85" fill="#7a5230"/><path d="M0 116 Q50 108 100 116 T200 116 V125 H0Z" fill="#8f6339"/>';
+const FRIJOL=(x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s}) rotate(-15)"><ellipse rx="26" ry="17" fill="#8e2f25"/><ellipse cx="-3" cy="-9" rx="7" ry="3" fill="#f3e6d0"/><ellipse cx="9" cy="-4" rx="8" ry="4" fill="#b2493c" opacity=".7"/></g>`;
+const RAICES='<path d="M100 168 Q96 182 88 198 M100 168 Q106 184 114 197 M100 170 L101 199 M94 182 L84 186 M106 184 L117 188" stroke="#f5f0e1" stroke-width="4" fill="none" stroke-linecap="round"/>';
+const HOJA=(x,y,r,s,c)=>`<path transform="translate(${x} ${y}) rotate(${r}) scale(${s})" d="M0 0 Q-20 -22 -44 -10 Q-22 16 0 0Z" fill="${c||'#5cb85c'}"/>`;
+const PALA=(x,y,r)=>`<g transform="translate(${x} ${y}) rotate(${r})"><rect x="-5" y="-70" width="10" height="60" rx="4" fill="#a0672f"/><rect x="-14" y="-78" width="28" height="10" rx="4" fill="#a0672f"/><path d="M-16 -12 H16 V12 Q0 30 -16 12Z" fill="#9aa5ab"/></g>`;
+const MATA_BANANO=`<rect x="90" y="70" width="20" height="120" rx="6" fill="#7d9b3a"/><path d="M92 90 Q96 140 94 188" stroke="#5f7a28" stroke-width="3" fill="none"/>
+ <path d="M100 75 Q40 40 10 70 Q50 70 100 82Z" fill="#4caf50"/><path d="M100 75 Q160 30 192 60 Q150 64 100 82Z" fill="#43a047"/><path d="M100 72 Q80 10 50 8 Q78 40 98 80Z" fill="#66bb6a"/><path d="M100 72 Q130 8 160 12 Q128 42 102 80Z" fill="#5cb85c"/><path d="M100 78 Q30 90 18 130 Q60 100 100 86Z" fill="#388e3c"/>`;
+const D={
+ semilla:S(CIELO+TIERRA+FRIJOL(100,158,1.1)),
+ raiz:S(CIELO+TIERRA+RAICES+FRIJOL(100,155,1.1)),
+ brote:S(CIELO+TIERRA+RAICES+'<path d="M100 152 Q94 122 100 84" stroke="#4caf50" stroke-width="7" fill="none" stroke-linecap="round"/>'+HOJA(100,86,25,1.1)+HOJA(100,86,155,1.1)+FRIJOL(100,155,1)),
+ mata:S(CIELO+TIERRA+'<path d="M100 118 Q92 70 102 18" stroke="#3e8e41" stroke-width="8" fill="none" stroke-linecap="round"/>'+HOJA(98,95,30,1.2)+HOJA(98,95,150,1.2,'#4caf50')+HOJA(97,62,20,1.1,'#66bb6a')+HOJA(99,58,160,1.1)+HOJA(101,30,40,.9,'#4caf50')+HOJA(101,28,140,.9,'#66bb6a')+'<path d="M103 75 Q130 82 134 112 M98 48 Q72 54 66 84" stroke="#7cb342" stroke-width="9" fill="none" stroke-linecap="round"/>'+RAICES),
+ hueco:S(CIELO+TIERRA+'<ellipse cx="95" cy="128" rx="38" ry="12" fill="#3e2716"/><path d="M140 112 Q150 100 168 112 Z" fill="#8f6339"/>'+PALA(160,95,25)),
+ poner:S(CIELO+TIERRA+'<ellipse cx="95" cy="128" rx="38" ry="12" fill="#3e2716"/>'+FRIJOL(95,70,.8)+'<path d="M95 30 V48 M80 36 L86 50 M110 36 L104 50" stroke="#555" stroke-width="4" stroke-linecap="round"/><path d="M95 92 V112" stroke="#555" stroke-width="4" stroke-dasharray="4 5"/>'),
+ tapar:S(CIELO+TIERRA+'<path d="M50 120 Q95 92 140 120Z" fill="#6b4627"/><circle cx="62" cy="104" r="4" fill="#6b4627"/><circle cx="75" cy="96" r="3" fill="#6b4627"/>'+PALA(40,108,-40)),
+ regar:S(CIELO+TIERRA+'<path d="M55 120 Q100 98 145 120Z" fill="#6b4627"/><g transform="translate(120 30) rotate(18)"><rect x="0" y="0" width="58" height="46" rx="8" fill="#2e8b57"/><path d="M58 10 Q78 4 74 34" stroke="#2e8b57" stroke-width="7" fill="none"/><path d="M0 12 L-46 40 L-40 48 L0 26Z" fill="#2e8b57"/><rect x="-54" y="36" width="16" height="14" rx="3" fill="#256f46" transform="rotate(30 -46 43)"/></g><path d="M70 82 l-4 10 M80 88 l-4 10 M60 92 l-4 10 M74 100 l-4 10 M90 96 l-4 10" stroke="#2f86c4" stroke-width="4" stroke-linecap="round"/>'),
+ colino:S(CIELO+TIERRA+'<rect x="94" y="78" width="12" height="40" rx="5" fill="#7d9b3a"/>'+HOJA(100,82,40,1.3,'#4caf50')+HOJA(100,80,140,1.3,'#66bb6a')+HOJA(100,78,95,1.1,'#5cb85c')),
+ bananoGrande:S(CIELO+'<rect y="186" width="200" height="14" fill="#7a5230"/>'+MATA_BANANO),
+ bananoFlor:S(CIELO+'<rect y="186" width="200" height="14" fill="#7a5230"/>'+MATA_BANANO+'<path d="M106 84 Q140 92 146 120" stroke="#6d8a2e" stroke-width="5" fill="none"/><path d="M146 118 Q160 140 148 168 Q132 142 146 118Z" fill="#7b2d6b"/><path d="M146 124 Q154 140 147 158" stroke="#a24f8e" stroke-width="3" fill="none"/>'),
+ bananoRacimo:S(CIELO+'<rect y="186" width="200" height="14" fill="#7a5230"/>'+MATA_BANANO+'<path d="M106 84 Q140 92 146 112 V172" stroke="#6d8a2e" stroke-width="5" fill="none"/>'+[0,1,2,3,4].map(i=>`<g transform="translate(146 ${116+i*11})"><path d="M-30 0 Q-24 10 -6 6 M30 0 Q24 10 6 6 M-18 -2 Q-14 9 -2 6 M18 -2 Q14 9 2 6" stroke="#9ccc65" stroke-width="7" fill="none" stroke-linecap="round"/></g>`).join('')+'<path d="M146 170 Q156 182 146 192 Q138 182 146 170Z" fill="#7b2d6b"/>'),
+ huevitos:S('<rect width="200" height="200" fill="#eef8e6"/><path d="M20 150 Q60 40 180 30 Q160 140 20 150Z" fill="#5cb85c"/><path d="M22 148 Q100 100 178 32" stroke="#3e8e41" stroke-width="4" fill="none"/>'+[[90,90],[105,82],[98,104],[114,96],[122,110]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="7" fill="#fff6c9" stroke="#d8c46a" stroke-width="2"/>`).join('')),
+ oruga:S('<rect width="200" height="200" fill="#eef8e6"/><path d="M10 170 Q70 60 190 50 Q170 160 10 170Z" fill="#5cb85c"/>'+[0,1,2,3,4,5].map(i=>`<circle cx="${50+i*20}" cy="${120-i*6}" r="15" fill="${i%2?'#9ccc3a':'#c0e04a'}" stroke="#4d6b14" stroke-width="2"/>`).join('')+'<circle cx="168" cy="82" r="17" fill="#f2c230" stroke="#4d6b14" stroke-width="2"/><circle cx="174" cy="78" r="3" fill="#222"/><path d="M166 66 L160 50 M176 66 L182 50" stroke="#222" stroke-width="3"/>'),
+ capullo:S('<rect width="200" height="200" fill="#eef8e6"/><path d="M0 30 Q100 18 200 34" stroke="#7a5230" stroke-width="10" fill="none"/><path d="M100 26 V40" stroke="#7a5230" stroke-width="3"/><path d="M100 40 Q70 80 86 140 Q100 170 114 140 Q130 80 100 40Z" fill="#8bc34a" stroke="#5b8a28" stroke-width="3"/><circle cx="94" cy="80" r="3" fill="#f2c230"/><circle cx="106" cy="92" r="3" fill="#f2c230"/><circle cx="96" cy="110" r="3" fill="#f2c230"/>'),
+ mariposa:S('<rect width="200" height="200" fill="#eef8e6"/><path d="M100 100 Q40 10 18 60 Q10 100 100 104Z M100 100 Q160 10 182 60 Q190 100 100 104Z" fill="#f39c12" stroke="#222" stroke-width="5"/><path d="M100 106 Q50 120 46 160 Q70 178 100 112Z M100 106 Q150 120 154 160 Q130 178 100 112Z" fill="#e67e22" stroke="#222" stroke-width="5"/><circle cx="50" cy="62" r="7" fill="#fff"/><circle cx="150" cy="62" r="7" fill="#fff"/><rect x="94" y="70" width="12" height="70" rx="6" fill="#222"/><path d="M98 72 Q88 50 80 44 M102 72 Q112 50 120 44" stroke="#222" stroke-width="3" fill="none"/>'),
+ cascaras:S('<rect width="200" height="200" fill="#fdf8ec"/><ellipse cx="100" cy="150" rx="88" ry="22" fill="#e0e0e0"/><path d="M60 140 Q40 90 70 70 Q66 110 90 140Z M90 140 Q100 80 130 72 Q112 110 110 142Z M110 142 Q150 110 165 120 Q140 130 128 146Z" fill="#f4d03f" stroke="#b7950b" stroke-width="2"/><path d="M60 140 Q100 150 128 146" stroke="#6e5a1c" stroke-width="5" fill="none"/><path d="M140 128 Q150 112 170 116 Q172 136 150 140Z" fill="#fff" stroke="#ccc" stroke-width="2"/><path d="M30 140 Q40 120 60 128 Q50 146 30 140Z" fill="#8bc34a"/>'),
+ compostera:S('<rect width="200" height="200" fill="#fdf8ec"/><rect x="25" y="70" width="150" height="110" fill="#a0672f"/><rect x="25" y="70" width="150" height="110" fill="none" stroke="#6e4520" stroke-width="5"/><path d="M25 100 H175 M25 130 H175 M25 160 H175" stroke="#6e4520" stroke-width="3"/><path d="M30 72 Q100 50 170 72Z" fill="#4a3020"/><path d="M60 62 Q66 46 84 52 M110 58 Q126 44 140 56" stroke="#f4d03f" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M92 64 q8 -10 16 0 t16 0" stroke="#e57373" stroke-width="5" fill="none" stroke-linecap="round"/>'),
+ abono:S('<rect width="200" height="200" fill="#fdf8ec"/><path d="M20 180 Q100 70 180 180Z" fill="#3e2716"/><circle cx="80" cy="150" r="4" fill="#5a3a22"/><circle cx="110" cy="130" r="5" fill="#5a3a22"/><circle cx="130" cy="160" r="4" fill="#5a3a22"/><path d="M96 168 q8 -8 16 0 t16 0" stroke="#e57373" stroke-width="5" fill="none" stroke-linecap="round"/>'+PALA(150,120,30)),
+ materaAbono:S('<rect width="200" height="200" fill="#fdf8ec"/><path d="M50 120 H150 L138 190 H62Z" fill="#c0603a"/><rect x="44" y="112" width="112" height="14" rx="4" fill="#a84f2c"/><ellipse cx="100" cy="114" rx="52" ry="6" fill="#3e2716"/><path d="M100 112 Q96 70 102 20" stroke="#3e8e41" stroke-width="7" fill="none"/>'+HOJA(99,90,30,1.1)+HOJA(99,88,150,1.1,'#4caf50')+HOJA(100,60,25,1.1,'#66bb6a')+HOJA(100,58,155,1.1)+HOJA(102,30,45,.9,'#4caf50')+HOJA(102,30,135,.9,'#66bb6a')),
+ // objetos para el agua
+ piedra:S('<path d="M30 130 Q22 88 66 74 Q108 56 150 78 Q184 98 168 136 Q150 162 100 162 Q48 162 30 130Z" fill="#8d8d8d"/><path d="M60 90 Q80 80 100 84" stroke="#b5b5b5" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="130" cy="128" r="6" fill="#6f6f6f"/>'),
+ corcho:S('<rect x="60" y="50" width="80" height="110" rx="8" fill="#d2a56d"/><ellipse cx="100" cy="50" rx="40" ry="12" fill="#e2bd8a"/><circle cx="80" cy="90" r="3" fill="#a77b45"/><circle cx="112" cy="110" r="3" fill="#a77b45"/><circle cx="92" cy="135" r="3" fill="#a77b45"/><circle cx="122" cy="80" r="2.5" fill="#a77b45"/>'),
+ clavo:S('<rect x="92" y="40" width="16" height="120" fill="#7f8c8d"/><rect x="70" y="30" width="60" height="14" rx="4" fill="#5d6d7e"/><path d="M92 158 L100 186 L108 158Z" fill="#7f8c8d"/>'),
+ moneda:S('<circle cx="100" cy="100" r="62" fill="#d4ac0d"/><circle cx="100" cy="100" r="48" fill="none" stroke="#9a7d0a" stroke-width="5"/><text x="100" y="118" font-size="46" font-weight="700" text-anchor="middle" fill="#9a7d0a">100</text>'),
+ palito:S('<rect x="20" y="88" width="160" height="22" rx="11" fill="#a0672f" transform="rotate(-20 100 100)"/><path d="M50 108 L150 72" stroke="#7a4b20" stroke-width="3" transform="rotate(0)"/>'),
+ canica:S('<circle cx="100" cy="100" r="50" fill="#5dade2"/><path d="M70 110 Q100 70 130 100 Q110 130 80 120" stroke="#1b4f72" stroke-width="8" fill="none"/><circle cx="82" cy="80" r="11" fill="#fff" opacity=".8"/>'),
+ tapa:S('<path d="M55 80 H145 L140 140 H60Z" fill="#c0392b"/><ellipse cx="100" cy="80" rx="45" ry="10" fill="#e74c3c"/>'+[0,1,2,3,4,5,6,7].map(i=>`<path d="M${66+i*10} 90 L${67+i*10} 134" stroke="#922b21" stroke-width="3"/>`).join('')),
+ pluma:S('<path d="M50 170 Q90 110 160 30" stroke="#8d6e63" stroke-width="4" fill="none"/><path d="M60 155 Q60 90 150 38 Q110 100 120 120 Q90 150 60 155Z" fill="#f5f5f5" stroke="#bdbdbd" stroke-width="3"/><path d="M80 120 l18 -6 M95 100 l20 -4 M112 80 l18 -4" stroke="#bdbdbd" stroke-width="3"/>'),
+ plastilina:S('<circle cx="100" cy="110" r="55" fill="#e67e22"/><path d="M70 90 Q90 76 110 82" stroke="#f5b041" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M110 140 q10 -6 20 2" stroke="#ca6f1e" stroke-width="5" fill="none"/>'),
+ barquito:S('<path d="M25 100 H175 Q160 150 100 152 Q40 150 25 100Z" fill="#e67e22"/><path d="M25 100 H175" stroke="#ca6f1e" stroke-width="6"/><path d="M45 104 Q100 120 155 104" stroke="#f5b041" stroke-width="6" fill="none"/>'),
+ esponja:S('<rect x="35" y="60" width="130" height="90" rx="14" fill="#f7dc6f"/><rect x="35" y="130" width="130" height="20" rx="6" fill="#58d68d"/>'+[[60,80],[90,95],[130,78],[110,112],[70,112],[145,105]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="6" fill="#d4ac0d"/>`).join('')),
+ totuma:S('<path d="M30 95 Q100 70 170 95 Q165 170 100 172 Q35 170 30 95Z" fill="#9b6a35"/><ellipse cx="100" cy="95" rx="70" ry="20" fill="#c99a5b"/><ellipse cx="100" cy="97" rx="58" ry="13" fill="#7a4f22"/>'),
+ frijolSolo:S(FRIJOL(100,100,2.6))
+};
+function barajar(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+let ctx=null;
+function son(bien,vol){try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';const t=ctx.currentTime;o.frequency.setValueAtTime(bien?660:220,t);if(bien)o.frequency.linearRampToValueAtTime(990,t+.15);g.gain.setValueAtTime((vol||.6)*.25,t);g.gain.exponentialRampToValueAtTime(.001,t+.35);o.connect(g).connect(ctx.destination);o.start(t);o.stop(t+.36)}catch(e){}}
+function chapuz(){try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();const t=ctx.currentTime,b=ctx.createBuffer(1,ctx.sampleRate*.4,ctx.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();f.type='lowpass';f.frequency.value=900;g.gain.value=.5;s.buffer=b;s.connect(f).connect(g).connect(ctx.destination);s.start(t)}catch(e){}}
+const espera=ms=>new Promise(r=>setTimeout(r,ms));
+
+// ---------- ¿Qué va primero? ----------
+const SEC=[
+ {t:'La semilla de frijol',c:['semilla','raiz','brote','mata'],n:['la semilla','le sale la raíz','sale el brote','crece la mata']},
+ {t:'Así se siembra',c:['hueco','poner','tapar','regar'],n:['hacer el hueco','poner la semilla','tapar con tierra','regar']},
+ {t:'La mata de banano',c:['colino','bananoGrande','bananoFlor','bananoRacimo'],n:['el colino','la mata grande','sale la flor (bellota)','el racimo']},
+ {t:'La mariposa',c:['huevitos','oruga','capullo','mariposa'],n:['los huevitos','la oruga','el capullo','la mariposa']},
+ {t:'El pollito',c:['🥚','🐣','🐥','🐔'],n:['el huevo','rompe el cascarón','el pollito','la gallina']},
+ {t:'Abono para las plantas',c:['cascaras','compostera','abono','materaAbono'],n:['las cáscaras','a la compostera','se vuelve abono','la mata crece']}
+];
+const ROT=['Primero','Después','Luego','Al final'];
+const dib=k=>D[k]||EM(k);
+let sc=0,mesa=[],puestos=0;
+function pintarSel(){$('cSel').innerHTML=SEC.map((s,i)=>`<button class="sec2 ${i===sc?'activo':''}" data-sec="${i}">${s.t}</button>`).join('');
+  document.querySelectorAll('[data-sec]').forEach(b=>b.onclick=()=>{sc=+b.dataset.sec;nuevaSec()})}
+function nuevaSec(){
+  const s=SEC[sc];puestos=0;mesa=[0,1,2,3];do{barajar(mesa)}while(mesa.every((v,i)=>v===i));
+  pintarSel();pintarMesa();
+  $('cLinea').innerHTML=ROT.map((r,i)=>(i?'<div class="flechita">➜</div>':'')+`<div class="hueco"><div class="caja" id="h${i}">${i+1}</div><div class="rot">${r}</div></div>`).join('');
+  $('cRes').textContent='¿Qué va primero?';
+}
+function pintarMesa(){const s=SEC[sc];
+  $('cMesa').innerHTML=mesa.map((k,i)=>k===null?'':`<div class="carta" data-pos="${i}"><span class="num">${i+1}</span>${dib(s.c[k])}</div>`).join('');
+  document.querySelectorAll('.carta').forEach(c=>c.onclick=()=>tocarCarta(+c.dataset.pos))}
+function tocarCarta(pos){const s=SEC[sc],k=mesa[pos];if(k===null||k===undefined)return;
+  const el=document.querySelector(`.carta[data-pos="${pos}"]`);
+  if(k===puestos){const h=$('h'+puestos);h.innerHTML=dib(s.c[k]);h.classList.add('lleno','salta');setTimeout(()=>h.classList.remove('salta'),1000);
+    mesa[pos]=null;puestos++;pintarMesa();son(true);
+    if(puestos===4){$('cRes').textContent='¡Lo lograron! 🎉 Cuéntenlo: primero '+s.n[0]+', después '+s.n[1]+', luego '+s.n[2]+' y al final '+s.n[3]+'.';son(true,.9)}
+    else $('cRes').textContent='¡Sí! ¿Y qué va '+ROT[puestos].toLowerCase()+'?';}
+  else{if(el){el.classList.remove('sacude');void el.offsetWidth;el.classList.add('sacude')}$('cRes').textContent='Mmm… ¿seguros? Miren otra vez.';son(false)}
+}
+$('cVer').onclick=()=>{const s=SEC[sc];for(let i=0;i<4;i++){const h=$('h'+i);h.innerHTML=dib(s.c[i]);h.classList.add('lleno')}mesa=[null,null,null,null];puestos=4;pintarMesa();$('cRes').textContent='Primero '+s.n[0]+', después '+s.n[1]+', luego '+s.n[2]+' y al final '+s.n[3]+'.'};
+$('cSig').onclick=()=>{sc=(sc+1)%SEC.length;nuevaSec()};
+
+// ---------- ¿Flota o se hunde? ----------
+const FLO=[
+ {n:'Piedra',k:'piedra',f:false},{n:'Corcho',k:'corcho',f:true},{n:'Hoja seca',k:'🍂',f:true},{n:'Clavo',k:'clavo',f:false},
+ {n:'Moneda',k:'moneda',f:false},{n:'Palito',k:'palito',f:true},{n:'Canica',k:'canica',f:false},{n:'Tapa de plástico',k:'tapa',f:true},
+ {n:'Llave',k:'🔑',f:false},{n:'Pluma de gallina',k:'pluma',f:true},{n:'Limón',k:'🍋',f:true},{n:'Cuchara de metal',k:'🥄',f:false},
+ {n:'Banano',k:'🍌',f:true},{n:'Totuma vacía',k:'totuma',f:true},{n:'Bola de plastilina',k:'plastilina',f:false},{n:'Barquito de plastilina',k:'barquito',f:true},
+ {n:'Esponja',k:'esponja',f:true},{n:'Coco seco',k:'🥥',f:true}
+];
+let fo=0,pred={A:null,B:null},lanzado=false;const fp={A:0,B:0},usados=new Set(),hist={f:[],h:[]};
+function pintarBand(){$('fBand').innerHTML=FLO.map((o,i)=>`<button title="${o.n}" data-ob="${i}" class="${i===fo?'activo':''} ${usados.has(i)?'usado':''}">${dib(o.k)}</button>`).join('');
+  document.querySelectorAll('[data-ob]').forEach(b=>b.onclick=()=>{fo=+b.dataset.ob;nuevoObj()})}
+function nuevoObj(){const o=FLO[fo];lanzado=false;pred={A:null,B:null};
+  const c=$('carril');c.className='carril';c.style.transition='none';void c.offsetWidth;c.style.transition='';
+  $('fObj').innerHTML=dib(o.k);$('fNom').textContent=o.n;$('fRes').textContent='¿Flota o se hunde?';
+  document.querySelectorAll('[data-pred]').forEach(b=>b.classList.remove('activo'));pintarBand()}
+document.querySelectorAll('[data-pred]').forEach(b=>b.onclick=()=>{if(lanzado)return;const [eq,v]=b.dataset.pred.split(':');pred[eq]=v;
+  document.querySelectorAll(`[data-pred^="${eq}:"]`).forEach(x=>x.classList.toggle('activo',x===b));son(true,.25)});
+async function alAgua(){if(lanzado)return;lanzado=true;const o=FLO[fo],c=$('carril');$('fRes').textContent='';
+  c.classList.add(o.f?'flota':'hunde');await espera(o.f?700:900);chapuz();await espera(o.f?600:1500);
+  const r=o.f?'flota':'hunde';let txt=o.f?'¡Flota! ⬆':'¡Se hunde! ⬇';const g=[];
+  ['A','B'].forEach(e=>{if(pred[e]===r){fp[e]++;g.push(e==='A'?'🦎 Iguanas':'🐦 Garzas')}});
+  $('fpA').textContent=fp.A;$('fpB').textContent=fp.B;
+  if(g.length)txt+='  Acertaron: '+g.join(' y ')+' 🎉';$('fRes').textContent=txt;son(true);
+  if(!usados.has(fo)){usados.add(fo);hist[o.f?'f':'h'].push(o.k);pintarHist()}pintarBand()}
+function pintarHist(){$('hF').textContent=hist.f.length;$('hH').textContent=hist.h.length;
+  $('hFi').innerHTML=hist.f.map(k=>`<span>${dib(k)}</span>`).join('');$('hHi').innerHTML=hist.h.map(k=>`<span>${dib(k)}</span>`).join('')}
+$('fAgua').onclick=alAgua;$('fSig').onclick=()=>{fo=(fo+1)%FLO.length;nuevoObj()};
+
+// ---------- ¿Cuántos hay? ----------
+const QUE=[{n:'Hormigas',k:'🐜'},{n:'Mariquitas',k:'🐞'},{n:'Gusanitos',k:'🐛'},{n:'Caracoles',k:'🐌'},{n:'Mariposas',k:'🦋'},{n:'Hojas',k:'🍃'},{n:'Semillas de frijol',k:'frijolSolo'},{n:'Dedos de banano',k:'🍌'}];
+let kq=0,rango=5,tipo='contar',grupos=[],vistos=false;
+function pintarQue(){$('kQue').innerHTML=QUE.map((q,i)=>`<button class="sec2 ${i===kq?'activo':''}" data-que="${i}">${q.n}</button>`).join('');
+  document.querySelectorAll('[data-que]').forEach(b=>b.onclick=()=>{kq=+b.dataset.que;nuevaRonda()})}
+function marcarBotones(){document.querySelectorAll('[data-rango]').forEach(b=>b.classList.toggle('activo',+b.dataset.rango===rango));
+  document.querySelectorAll('[data-tipo]').forEach(b=>b.classList.toggle('activo',b.dataset.tipo===tipo))}
+function cantidad(max){const min={5:2,10:5,15:9}[max];return min+Math.floor(Math.random()*(max-min+1))}
+function nuevaRonda(){vistos=false;pintarQue();marcarBotones();
+  if(tipo==='contar'){grupos=[{n:cantidad(rango),c:0}]}
+  else{const m=Math.min(rango,10),a=cantidad(m);let b=Math.random()<.2?a:cantidad(m);grupos=[{n:a,c:0},{n:b,c:0}]}
+  const q=QUE[kq];
+  $('kCampos').innerHTML=grupos.map((g,gi)=>{const celdas=tipo==='contar'?20:16,pos=barajar([...Array(celdas).keys()]).slice(0,g.n);
+    let html='';for(let i=0;i<celdas;i++){if(pos.includes(i)){const r=Math.floor(Math.random()*60)-30,dx=Math.floor(Math.random()*16)-8,dy=Math.floor(Math.random()*16)-8;
+      html+=`<div class="ranura"><button class="bicho" data-g="${gi}" style="transform:translate(${dx}%,${dy}%) rotate(${r}deg)">${dib(q.k)}</button></div>`}else html+='<div class="ranura"></div>'}
+    return `<div><div class="etq-campo" id="et${gi}"></div><div class="campo ${tipo==='contar'?'uno':'dos'}" id="cp${gi}">${html}</div></div>`}).join('');
+  document.querySelectorAll('.bicho').forEach(b=>b.onclick=()=>contar(b));
+  $('kTotal').innerHTML='';$('kVer').textContent=tipo==='contar'?'¿Cuántos hay?':'¿Dónde hay más?';
+}
+function contar(b){if(b.classList.contains('contado'))return;const g=grupos[+b.dataset.g];g.c++;b.classList.add('contado');
+  const m=document.createElement('span');m.className='marca';m.textContent=g.c;b.appendChild(m);son(true,.3)}
+function marco(n){let h='<div class="marco">';const filas=Math.max(1,Math.ceil(n/5));for(let i=0;i<filas*5;i++)h+=`<i class="${i<n?'lleno':''}"></i>`;return h+'</div>'}
+function comprobar(){const q=QUE[kq];
+  if(tipo==='contar'){const g=grupos[0];$('kTotal').innerHTML=`<span class="cifra">${g.n}</span>${marco(g.n)}<span class="nombre" style="font-size:1.4rem">${q.n.toLowerCase()}</span>`;
+    $('cp0').classList.add('salta');setTimeout(()=>$('cp0').classList.remove('salta'),1100);son(true)}
+  else{const [a,b]=grupos;$('et0').innerHTML=`${a.n}`;$('et1').innerHTML=`${b.n}`;['cp0','cp1'].forEach(x=>$(x).classList.remove('mas'));
+    if(a.n===b.n){$('kTotal').innerHTML='<span class="nombre">¡Hay igual en los dos lados! ⚖️</span>'}
+    else{const mayor=a.n>b.n?0:1;$('cp'+mayor).classList.add('mas');$('kTotal').innerHTML=`<span class="nombre">¡Hay más ${mayor===0?'en el lado de la izquierda ⬅':'en el lado de la derecha ➡'}! ${Math.max(a.n,b.n)} es más que ${Math.min(a.n,b.n)}.</span>`}
+    son(true)}
+}
+function borrarConteo(){grupos.forEach(g=>g.c=0);document.querySelectorAll('.bicho').forEach(b=>{b.classList.remove('contado');const m=b.querySelector('.marca');if(m)m.remove()});
+  $('kTotal').innerHTML='';document.querySelectorAll('.etq-campo').forEach(e=>e.textContent='');document.querySelectorAll('.campo').forEach(c=>c.classList.remove('mas'))}
+document.querySelectorAll('[data-rango]').forEach(b=>b.onclick=()=>{rango=+b.dataset.rango;nuevaRonda()});
+document.querySelectorAll('[data-tipo]').forEach(b=>b.onclick=()=>{tipo=b.dataset.tipo;nuevaRonda()});
+$('kVer').onclick=comprobar;$('kBorra').onclick=borrarConteo;$('kSig').onclick=nuevaRonda;
+
+// ---------- Menú, pantalla completa y teclado ----------
+$('iDib').innerHTML=D.mata;
+let modo=null;
+function abrir(m){modo=m;['crece','flota','cuenta'].forEach(x=>$('m-'+x).classList.toggle('oculto',x!==m));$('inicio').classList.add('oculto');
+  document.querySelectorAll('[data-modo]').forEach(b=>b.classList.toggle('activo',b.dataset.modo===m));
+  if(m==='crece'&&!$('cMesa').children.length)nuevaSec();if(m==='flota'&&!$('fNom').textContent)nuevoObj();if(m==='cuenta'&&!$('kCampos').children.length)nuevaRonda()}
+document.querySelectorAll('[data-modo]').forEach(b=>b.onclick=()=>abrir(b.dataset.modo));
+$('bPant').onclick=()=>{const e=$('escena');(e.requestFullscreen||e.webkitRequestFullscreen||function(){}).call(e)};
+document.addEventListener('keydown',ev=>{
+  if(modo==='crece'){if(/^[1-4]$/.test(ev.key))tocarCarta(+ev.key-1);else if(ev.key===' '){ev.preventDefault();sc=(sc+1)%SEC.length;nuevaSec()}}
+  else if(modo==='flota'){if(ev.key==='Enter'){ev.preventDefault();alAgua()}else if(ev.key===' '){ev.preventDefault();fo=(fo+1)%FLO.length;nuevoObj()}}
+  else if(modo==='cuenta'){if(ev.key==='Enter'){ev.preventDefault();comprobar()}else if(ev.key===' '){ev.preventDefault();nuevaRonda()}}
+});
+const q=new URLSearchParams(location.search).get('juego');if(q&&['crece','flota','cuenta'].includes(q))abrir(q);
+})();
+</script>
