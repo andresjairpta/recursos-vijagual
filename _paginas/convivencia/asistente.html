@@ -31,6 +31,14 @@
 .formatos button{margin:4px 6px 4px 0}
 .form label{display:block;font-weight:700;font-size:.88rem;margin:8px 0 3px}
 .form textarea{font:inherit;width:100%;min-height:2.6em;padding:8px 10px;border:1px solid var(--borde);border-radius:8px}
+.form h4{margin:16px 0 4px;color:var(--verde);font-size:1rem}
+.checks label{display:flex;gap:8px;align-items:flex-start;font-weight:400;margin:5px 0}
+.checks input[type=checkbox]{width:auto;margin-top:5px}
+.checks .otra{align-items:center}
+.checks .otra input{flex:1}
+.desliza{overflow-x:auto}
+.ft td{padding:2px}
+.ft input{padding:6px;min-width:5.5rem}
 details{background:#fff;border:1px solid var(--borde);border-radius:12px;padding:8px 14px;margin:8px 0}
 summary{font-weight:700;cursor:pointer;color:var(--verde)}
 table.t{width:100%;border-collapse:collapse;font-size:.85rem;margin:8px 0}
@@ -43,8 +51,17 @@ table.t th{background:var(--verde-claro)}
   #impresion .ref{font-size:9pt;margin-bottom:3mm}
   #impresion table{width:100%;border-collapse:collapse}
   #impresion th,#impresion td{border:1px solid #000;padding:2mm;font-size:10pt;vertical-align:top;text-align:left}
-  #impresion th{width:38%;background:#eee}
-  #impresion td{height:12mm;white-space:pre-wrap}
+  #impresion h3{font-size:10.5pt;margin:3mm 0 1mm}
+  #impresion table.tx th{width:38%;background:#eee}
+  #impresion table.tx td{height:10mm;white-space:pre-wrap}
+  #impresion table.filas th{background:#eee}
+  #impresion table.filas td{height:7mm}
+  #impresion .st{font-size:9.5pt;font-weight:bold;margin:2mm 0 1mm}
+  #impresion .pchecks{columns:2;column-gap:6mm;font-size:9pt}
+  #impresion .pchecks div{break-inside:avoid;margin:0 0 1mm}
+  #impresion h3,#impresion .st{break-after:avoid}
+  #impresion table{break-inside:auto}
+  #impresion tr{break-inside:avoid}
   #impresion .firmas{display:grid;grid-template-columns:1fr 1fr;gap:10mm 8mm;margin-top:12mm}
   #impresion .firmas div{border-top:1px solid #000;padding-top:1mm;font-size:9pt}
   footer{display:none}
@@ -147,7 +164,7 @@ var TIPOS = {
       pasos:["Escuche al estudiante antes de aplicar cualquier medida.",
              "Aplique la medida en el momento y regístrela.",
              "Si se repite, informe a la familia. Tres incumplimientos leves de la misma clase en un periodo, después de un compromiso, se tratan como graves."],
-      primera:[1], repite:[2,3,5], formatos:["D"]},
+      primera:[1], repite:[2,3,5], formatos:["B","D"]},
   grave:{et:"Incumplimiento grave", cls:"b-grave", camino:"B", num:"10.2",
       quien:"El director de grupo, con conocimiento del director rural y el debido proceso del capítulo 13.",
       pasos:["Escuche al estudiante y, si los hay, a los testigos.",
@@ -158,7 +175,7 @@ var TIPOS = {
       primera:[2,3,5,6], repite:[7,8,9,10], formatos:["B","E","D"]},
   riesgo:{et:"Situación de riesgo", cls:"b-riesgo", camino:"C", num:"11",
       quien:"Cualquier adulto que lo note actúa de inmediato y avisa al director rural y al docente orientador.",
-      pasos:[], primera:[], repite:[], formatos:["G","B"]}
+      pasos:[], primera:[], repite:[], formatos:["B","G"]}
 };
 
 var REGLAS_RIESGO = ["Escuche con calma, crea al estudiante, no lo juzgue y no le prometa guardar el secreto: explíquele que va a pedir ayuda para protegerlo.",
@@ -260,7 +277,7 @@ function telefonos(keys){
   return keys.map(function(k){var d=DIR[k];if(!d)return "";
     return d.t?'<a class="tel" href="tel:'+d.t+'">'+esc(d.n)+' · '+d.t+'</a>':'<span class="tel pend">'+esc(d.n)+' · por completar en el capítulo 22</span>';}).join("");
 }
-function lista(arr,cls){return '<ol class="'+(cls||"pasos")+'">'+arr.map(function(p){return '<li><label><input type="checkbox"> <span>'+esc(p)+'</span></label></li>';}).join("")+'</ol>';}
+function lista(arr,off){return '<ol class="pasos">'+arr.map(function(p,i){return '<li><label><input type="checkbox"'+(off===null||off===undefined?'':' data-p="'+(off+i)+'"')+'> <span>'+esc(p)+'</span></label></li>';}).join("")+'</ol>';}
 
 var actual=null, vez="primera";
 function abrir(id){
@@ -288,46 +305,118 @@ function pintarDetalle(){
   if(T.urgente||llamar.length){
     h+='<div class="caja urg"><b>'+(T.urgente?'Actúe hoy mismo. Llame:':'Contactos para esta situación:')+'</b><br>'+telefonos(llamar.length?llamar:["123"])+'</div>';
   }
-  if(T.camino==="C"){h+='<div class="caja prot"><b>Antes de todo:</b>'+lista(REGLAS_RIESGO)+'</div>';}
+  if(T.camino==="C"){h+='<div class="caja prot"><b>Antes de todo:</b>'+lista(REGLAS_RIESGO,null)+'</div>';}
   h+='<h3>Quién actúa</h3><p>'+esc(T.quien)+'</p>';
   var pasos=(s.pasos&&s.pasos.length)?s.pasos:T.pasos;
-  h+='<h3>Pasos'+(T.camino!=="C"?' del protocolo ('+T.et+')':'')+'</h3>'+lista(pasos);
-  if(s.extra&&s.extra.length){h+='<h3>En esta situación, además</h3>'+lista(s.extra);}
+  h+='<h3>Pasos'+(T.camino!=="C"?' del protocolo ('+T.et+')':'')+'</h3><p class="nota">Marque cada paso a medida que lo hace: lo marcado pasa solo al formato de registro.</p>'+lista(pasos,0);
+  if(s.extra&&s.extra.length){h+='<h3>En esta situación, además</h3>'+lista(s.extra,pasos.length);}
   var nunca=(s.nunca||[]).concat(T.nunca||[]);
   if(nunca.length){h+='<div class="caja nunca"><b>Lo que nunca se hace:</b><ul>'+nunca.map(function(n){return '<li>'+esc(n)+'</li>';}).join("")+'</ul></div>';}
   h+='<h3>Medidas</h3><div id="medidas">'+medidas(T)+'</div>';
-  h+='<h3>Formatos para imprimir</h3><div class="formatos">'+T.formatos.map(function(f){return '<button data-formato="'+f+'">'+FORM[f].t+'</button>';}).join("")+'</div><div id="form"></div>';
+  h+='<h3>Formatos para imprimir</h3><div class="formatos">'+T.formatos.map(function(f){return '<button data-formato="'+f+'">'+TITULOS[f]+'</button>';}).join("")+'</div><div id="form"></div>';
   h+='<p class="nota">Debido proceso: capítulo 13 del manual (abajo, en Consulta rápida).</p>';
   $("detalle").innerHTML=h;
 }
 
-var FORM={
-  B:{t:"Registro de la situación (Anexo B)", campos:["Fecha, hora y lugar","Quién reporta","Estudiantes involucrados y grado","Hechos (lo que se vio o se dijo, sin opiniones)","Camino y tipo","Atención inmediata y protección","Familias informadas (quién, cuándo, cómo)","Remisiones realizadas","Medida y seguimiento"], firmas:["Quien registra"]},
-  C:{t:"Acta de mediación o acuerdo restaurativo (Anexo C)", campos:["Fecha · Participantes · Mediador (docente o juez de paz)","¿Qué pasó? (versión de cada parte)","¿A quién afectó y cómo?","¿Qué se necesita para reparar el daño?","Acuerdos (qué, quién, cuándo)","Fecha de verificación"], firmas:["Parte 1","Parte 2","Mediador"]},
-  D:{t:"Compromiso pedagógico o de permanencia (Anexo D)", campos:["Estudiante · Grado · Fecha · Tipo (compromiso pedagógico o matrícula en seguimiento)","Situación que lo origina","Metas del estudiante (concretas y verificables)","Apoyos del centro","Compromisos de la familia","Fechas de revisión","Consecuencia si no se cumple (siguiente escalón)"], firmas:["Estudiante","Acudiente","Director de grupo","Director rural"]},
-  E:{t:"Citación y descargos (Anexo E)", campos:["Estudiante · Acudiente · Fecha y hora de la citación","Hechos que se le atribuyen y pruebas","Versión del estudiante (con sus palabras)","Pruebas que aporta","¿Pidió la presencia del personero?"], firmas:["Estudiante","Acudiente","Quien recibe los descargos"]},
-  G:{t:"Remisión a una entidad (Anexo G)", campos:["Entidad a la que se remite · Fecha","Estudiante · Edad · Grado · Acudiente y contacto","Motivo de la remisión (sin detalles que revictimicen)","Acciones realizadas por el centro","Lo que se solicita a la entidad","Responsable del seguimiento en el centro"], firmas:["Director rural","Recibido por la entidad"]}
+var TITULOS={B:"Registro y atención de la situación (Anexo B)",C:"Acta de mediación o acuerdo restaurativo (Anexo C)",D:"Compromiso pedagógico o de permanencia (Anexo D)",E:"Citación y descargos (Anexo E)",G:"Remisión a una entidad (Anexo G)"};
+var CI=["Nuestros Cuerpos Cuentan (Danza y Arte)","Deportes para la Convivencia (Fútbol Sala)","Programadores del Futuro (Tecnología)","Atrapasueños del Bananal (Lectura y Escritura)"];
+var CI_SIT={discusion:[1],empujon:[1],pelea:[1],acoso:[1],amenaza:[1],docente:[0],ciberacoso:[2],happy:[2],suplantacion:[2],celular:[2],grabar:[2],apuestas:[2],discriminacion:[0],comentario:[0],apodo:[0],noviazgo:[0],vocabulario:[3],mensaje:[3],interrumpe:[3],fraude:[3]};
+var REST_K=["disculpa","reparar","circulo","carta","jueces","trato","servicio"];
+var REST={disculpa:"Disculpa sincera en privado",reparar:"Reparar, reponer o arreglar lo dañado",circulo:"Círculo restaurativo con las partes",carta:"Carta reparadora",jueces:"Mediación con los jueces de paz",trato:"Acuerdo de trato entre las partes",servicio:"Acción de servicio relacionada con el hecho (campaña, cartelera, cuidado de un espacio)"};
+var REST_TIPO={t1:["disculpa","trato"],t2:["circulo","reparar","trato"],t3:[],leve:[],grave:["reparar"],riesgo:[]};
+var REST_SIT={dano:["reparar","servicio"],apropiarse:["reparar","disculpa"],utiles:["reparar","disculpa"],ciberacoso:["circulo","servicio"],happy:["circulo","disculpa"],discriminacion:["circulo","servicio"],basura:["servicio"],animal:["servicio"],vocabulario:["disculpa"],docente:["disculpa","carta"],fraude:[],celular:[],tarde:[],materiales:[]};
+var PROTEC=["Separar a las partes","Primeros auxilios o atención en salud","Cambio de puesto","Acompañamiento de un adulto en descansos y a la salida","Evitar que coincida con la otra parte en los mismos espacios","Adulto de confianza asignado en el centro","Entregar al estudiante solo a su acudiente o a un autorizado"];
+var PROTEC_TIPO={t2:[0,3],t3:[1,3,4,5],riesgo:[5]};
+var SENSIBLES=["violsexual","intimas","sextorsion"];
+
+function reservado(s){return TIPOS[s.tipo].camino==="C"||SENSIBLES.indexOf(s.id)>=0;}
+function conReflexion(s){return ["t1","t2","leve","grave"].indexOf(s.tipo)>=0&&!reservado(s);}
+function fecha(dias){var d=new Date();d.setDate(d.getDate()+dias);return d.toLocaleDateString("es-CO",{day:"2-digit",month:"2-digit",year:"numeric"});}
+function hoy(){return fecha(0);}
+function hoyHora(){var d=new Date();return hoy()+" · "+d.toLocaleTimeString("es-CO",{hour:"2-digit",minute:"2-digit"});}
+function pasosTodos(s){var T=TIPOS[s.tipo];var p=(s.pasos&&s.pasos.length)?s.pasos:T.pasos;return p.concat(s.extra||[]);}
+function marcados(){var r=[];document.querySelectorAll("#detalle input[data-p]").forEach(function(x){if(x.checked)r.push(+x.dataset.p);});return r;}
+function seguimiento(s){var C=TIPOS[s.tipo].camino==="C";
+  return {t:"",cols:["Fecha","Acción de seguimiento","Responsable","Resultado"],n:3,pre:C?
+    [[fecha(3),"Verificar que la remisión fue recibida y atendida","Docente orientador",""],[fecha(15),"Revisar con la familia y la entidad cómo sigue el estudiante","Docente orientador",""],[fecha(30),"Cierre o nueva remisión","Director rural",""]]:
+    [[fecha(7),"Verificar con el estudiante el cumplimiento de los acuerdos","Director de grupo",""],[fecha(15),"Revisar el avance con la familia","Director de grupo",""],[fecha(30),"Cierre del caso o paso al siguiente escalón","Director de grupo",""]]};}
+function ciSec(s){return {h:"Estrategia de apoyo: Centros de Interés",k:"checks",opts:CI,pre:CI_SIT[s.id]||[],otra:true};}
+
+var FORMS={
+ B:function(s){
+  var T=TIPOS[s.tipo],res=reservado(s),sec=[];
+  sec.push({h:"Información general",k:"text",items:[["Fecha y hora del reporte",hoyHora()],["Docente que reporta",""]]});
+  var filas=[{t:res?"Estudiante":"Estudiantes presuntamente involucrados",cols:["Nombre completo","Grado","Edad"],n:res?1:3}];
+  if(!res){filas.push({t:"Estudiantes afectados",cols:["Nombre completo","Grado","Edad"],n:3});filas.push({t:"Testigos o personas que presenciaron los hechos",cols:["Nombre completo","Cargo o grado","Contacto"],n:2});}
+  sec.push({h:"Personas involucradas",k:"rows",items:filas});
+  sec.push({h:"Descripción de la situación",k:"text",items:res?
+    [["Lugar, fecha y hora",""],["Lo que el estudiante dijo, con sus propias palabras (sin interrogar ni pedir detalles)",""]]:
+    [["Modo: cómo ocurrieron los hechos y la conducta observada",""],["Tiempo: fecha, hora y momento (clase, descanso, restaurante, salida)",""],["Lugar: sitio exacto (aula, patio, corredor, restaurante, cancha, baño, ruta)",""],["Versión de las partes (relato claro, objetivo y en orden)",""]]});
+  var mismos=["t1","t2","leve","grave"].indexOf(s.tipo)>=0?SIT.filter(function(x){return x.tipo===s.tipo;}):[s];
+  sec.push({h:"Situación identificada ("+datos(s).et+", numeral "+datos(s).num+")",k:"checks",opts:mismos.map(function(x){return x.t;}),pre:[mismos.indexOf(s)],otra:mismos.length>1});
+  var at=pasosTodos(s),preAt=marcados();
+  if(PROTEC_TIPO[s.tipo]){var off=at.length;at=at.concat(PROTEC);PROTEC_TIPO[s.tipo].forEach(function(i){preAt.push(off+i);});}
+  sec.push({h:"Atención inmediata y protección",ayuda:"Lo que marcó en los pasos del protocolo ya viene señalado.",k:"checks",opts:at,pre:preAt,otra:true});
+  if(conReflexion(s))sec.push({h:"Reflexión restaurativa (la escribe el estudiante)",k:"text",items:[["¿Qué pasó y qué pensaba en ese momento?",""],["¿A quiénes afecté con mi comportamiento? (a mí mismo, compañeros, docentes, familia)",""],["¿Cómo puedo reparar el daño o mejorar esta situación?",""]]});
+  if(T.camino==="C"){sec.push({h:"Medida",k:"note",text:"No se castiga: se protege y se remite (escalón 7). Si además hubo daño a otras personas, se registra también la situación de convivencia que corresponda."});}
+  else{var ids=vez==="primera"?T.primera:T.repite,ops=ids.map(function(n){return "Escalón "+n+". "+ESC[n-1][1]+" (decide: "+ESC[n-1][2]+")";}),pre=[];
+    ids.forEach(function(n,i){if(n<11)pre.push(i);});
+    var rs=REST_SIT.hasOwnProperty(s.id)?REST_SIT[s.id]:REST_TIPO[s.tipo];
+    REST_K.forEach(function(k,i){ops.push("Medida restaurativa: "+REST[k]);if(rs.indexOf(k)>=0)pre.push(ids.length+i);});
+    sec.push({h:"Medidas pedagógicas y restaurativas ("+(vez==="primera"?"primera vez":"se repite")+")",k:"checks",opts:ops,pre:pre,otra:true});}
+  sec.push({h:"Acuerdos y compromisos formativos",k:"text",items:res?[["Acuerdos de protección y acompañamiento",""],["Docente responsable del seguimiento",""]]:[["Del estudiante o los estudiantes",""],["De la familia (padre, madre o acudiente)",""],["Docente responsable del seguimiento",""]]});
+  sec.push(ciSec(s));
+  sec.push({h:"Familias informadas y remisiones",k:"text",items:[["Familias informadas (quién, cuándo y cómo)",""],["Remisiones realizadas (entidad y fecha)",""]]});
+  sec.push({h:"Seguimiento",k:"rows",items:[seguimiento(s)]});
+  var f=["Docente que reporta"];if(!res)f.push("Estudiante");f.push("Padre, madre o acudiente");f.push("Visto bueno de Orientación o del director rural");
+  return {t:TITULOS.B,sec:sec,firmas:f};},
+ C:function(s){
+  var rs=REST_SIT.hasOwnProperty(s.id)?REST_SIT[s.id]:REST_TIPO[s.tipo],pre=[];REST_K.forEach(function(k,i){if(rs.indexOf(k)>=0)pre.push(i);});
+  return {t:TITULOS.C,firmas:["Quien causó el daño","Quien recibió el daño","Mediador (docente o juez de paz)","Visto bueno de Orientación"],sec:[
+   {h:"Información",k:"text",items:[["Fecha",hoy()],["Mediador (docente o juez de paz)",""],["Situación",s.t]]},
+   {h:"Participantes",k:"rows",items:[{t:"",cols:["Nombre completo","Grado","Rol (causó el daño, lo recibió, otro)"],n:4}]},
+   {h:"Preguntas restaurativas para quien causó el daño",k:"text",items:[["¿Qué pasó?",""],["¿Qué pensabas o sentías en ese momento?",""],["¿A quién afectó lo que hiciste y cómo?",""],["¿Qué necesitas hacer para reparar el daño?",""]]},
+   {h:"Preguntas restaurativas para quien recibió el daño",k:"text",items:[["¿Qué pensaste cuando te diste cuenta de lo que pasó?",""],["¿Cómo te afectó a ti y a otros?",""],["¿Qué necesitas para que el daño se repare?",""]]},
+   {h:"Medidas restaurativas acordadas",k:"checks",opts:REST_K.map(function(k){return REST[k];}),pre:pre,otra:true},
+   {h:"Acuerdos",k:"text",items:[["Acuerdos (qué, quién y cuándo)",""],["Fecha de verificación",fecha(7)]]}]};},
+ D:function(s){return {t:TITULOS.D,firmas:["Estudiante","Acudiente","Director de grupo","Director rural"],sec:[
+   {h:"Datos",k:"text",items:[["Estudiante · Grado · Fecha",hoy()],["Tipo",vez==="primera"?"Compromiso pedagógico":"Compromiso pedagógico (reiteración) o matrícula en seguimiento"],["Situación que lo origina",s.t]]},
+   {h:"Compromisos",k:"text",items:[["Metas del estudiante (concretas y verificables)",""],["Apoyos del centro",""],["Compromisos de la familia",""],["Consecuencia si no se cumple","Siguiente escalón de la escalera de medidas (capítulo 12 del manual)"]]},
+   ciSec(s),
+   {h:"Revisiones",k:"rows",items:[seguimiento(s)]}]};},
+ E:function(s){return {t:TITULOS.E,firmas:["Estudiante","Acudiente","Quien recibe los descargos"],sec:[
+   {h:"Citación",k:"text",items:[["Estudiante · Acudiente",""],["Fecha y hora de la citación",""],["Hechos que se le atribuyen y pruebas",""]]},
+   {h:"Descargos",k:"text",items:[["Versión del estudiante (con sus palabras)",""],["Pruebas que aporta",""],["¿Pidió la presencia del personero?",""]]}]};},
+ G:function(s){return {t:TITULOS.G,firmas:["Director rural","Recibido por la entidad (nombre, cargo y fecha)"],sec:[
+   {h:"Remisión",k:"text",items:[["Entidad a la que se remite · Fecha",hoy()+" · "],["Estudiante · Edad · Grado · Acudiente y contacto",""],["Motivo de la remisión (sin detalles que revictimicen)",""],["Acciones realizadas por el centro",""],["Lo que se solicita a la entidad",""],["Responsable del seguimiento en el centro",""]]}]};}
 };
 
-function hoy(){var d=new Date();return d.toLocaleDateString("es-CO",{day:"2-digit",month:"long",year:"numeric"});}
-function prellenar(f,c){
-  var s=actual,d=datos(s);
-  if(c==="Camino y tipo")return d.et+" · "+s.t+" (Manual, numeral "+d.num+")";
-  if(c==="Situación que lo origina")return s.t;
-  if(c.indexOf("Fecha, hora y lugar")===0||c.indexOf("Entidad a la que se remite")===0||c.indexOf("Fecha · Participantes")===0)return hoy()+" · ";
-  return "";
+var formActual=null;
+function construirForm(f){
+  var F=FORMS[f](actual);formActual=F;
+  var h='<div class="tarjeta form"><b>'+esc(F.t)+'</b><p class="nota">Lo que viene marcado o escrito es una propuesta según el caso: revise, desmarque o edite. Nada se guarda.</p>';
+  F.sec.forEach(function(sec,i){h+='<h4>'+(i+1)+'. '+esc(sec.h)+'</h4>'+(sec.ayuda?'<p class="nota">'+esc(sec.ayuda)+'</p>':'');
+    if(sec.k==="text"){sec.items.forEach(function(it,j){h+='<label for="f'+i+'_'+j+'">'+esc(it[0])+'</label><textarea id="f'+i+'_'+j+'" rows="2">'+esc(it[1]||"")+'</textarea>';});}
+    else if(sec.k==="rows"){sec.items.forEach(function(tb,j){if(!tb.n)return;h+=(tb.t?'<label>'+esc(tb.t)+'</label>':'')+'<div class="desliza"><table class="t ft"><tr>'+tb.cols.map(function(c){return '<th>'+esc(c)+'</th>';}).join("")+'</tr>';
+      for(var r=0;r<tb.n;r++){h+='<tr>'+tb.cols.map(function(c,k){var v=(tb.pre&&tb.pre[r]&&tb.pre[r][k])||"";return '<td><input id="r'+i+'_'+j+'_'+r+'_'+k+'" value="'+esc(v)+'" aria-label="'+esc(c)+'"></td>';}).join("")+'</tr>';}
+      h+='</table></div>';});}
+    else if(sec.k==="checks"){h+='<div class="checks">'+sec.opts.map(function(o,j){return '<label><input type="checkbox" id="k'+i+'_'+j+'"'+(sec.pre.indexOf(j)>=0?' checked':'')+'> <span>'+esc(o)+'</span></label>';}).join("")+(sec.otra?'<label class="otra">Otra: <input id="k'+i+'_otra"></label>':'')+'</div>';}
+    else if(sec.k==="note"){h+='<p>'+esc(sec.text)+'</p>';}});
+  h+='<p><button data-imprimir="1">Imprimir este formato</button></p></div>';
+  $("form").innerHTML=h;$("form").scrollIntoView({behavior:"smooth"});
 }
-function abrirForm(f){
-  var F=FORM[f];
-  $("form").innerHTML='<div class="tarjeta form"><b>'+F.t+'</b><p class="nota">Escriba lo necesario o deje en blanco para llenar a mano. Nada se guarda.</p>'+
-    F.campos.map(function(c,i){return '<label for="c'+i+'">'+esc(c)+'</label><textarea id="c'+i+'" rows="2">'+esc(prellenar(f,c))+'</textarea>';}).join("")+
-    '<p><button data-imprimir="'+f+'">Imprimir este formato</button></p></div>';
-}
-function imprimir(f){
-  var F=FORM[f],d=datos(actual);
-  var filas=F.campos.map(function(c,i){return '<tr><th>'+esc(c)+'</th><td>'+esc($("c"+i).value)+'</td></tr>';}).join("");
-  $("impresion").innerHTML='<h2>'+esc(F.t.toUpperCase())+'</h2><div class="ref">Manual de Convivencia 2027 · Situación: '+esc(actual.t)+' · '+esc(d.et)+', numeral '+esc(d.num)+'. Documento reservado: se archiva con reserva (Ley 1581 de 2012).</div><table>'+filas+'</table><div class="firmas">'+F.firmas.map(function(x){return '<div>Firma: '+esc(x)+'</div>';}).join("")+'</div>';
-  window.print();
+function imprimir(){
+  var F=formActual,d=datos(actual);
+  var h='<h2>'+esc(F.t.toUpperCase())+'</h2><div class="ref">Manual de Convivencia 2027 · Situación: '+esc(actual.t)+' · '+esc(d.et)+', numeral '+esc(d.num)+'. Documento reservado: se archiva con reserva (Ley 1581 de 2012).</div>';
+  F.sec.forEach(function(sec,i){h+='<h3>'+(i+1)+'. '+esc(sec.h)+'</h3>';
+    if(sec.k==="text"){h+='<table class="tx">'+sec.items.map(function(it,j){return '<tr><th>'+esc(it[0])+'</th><td>'+esc($("f"+i+"_"+j).value)+'</td></tr>';}).join("")+'</table>';}
+    else if(sec.k==="rows"){sec.items.forEach(function(tb,j){if(!tb.n)return;h+=(tb.t?'<p class="st">'+esc(tb.t)+'</p>':'')+'<table class="filas"><tr>'+tb.cols.map(function(c){return '<th>'+esc(c)+'</th>';}).join("")+'</tr>';
+      for(var r=0;r<tb.n;r++){h+='<tr>'+tb.cols.map(function(c,k){return '<td>'+esc($("r"+i+"_"+j+"_"+r+"_"+k).value)+'</td>';}).join("")+'</tr>';}h+='</table>';});}
+    else if(sec.k==="checks"){h+='<div class="pchecks">'+sec.opts.map(function(o,j){return '<div>'+($("k"+i+"_"+j).checked?'☒':'☐')+' '+esc(o)+'</div>';}).join("");
+      if(sec.otra){var v=$("k"+i+"_otra").value;h+='<div>'+(v?'☒ Otra: '+esc(v):'☐ Otra: ______________________')+'</div>';}h+='</div>';}
+    else if(sec.k==="note"){h+='<p>'+esc(sec.text)+'</p>';}});
+  h+='<div class="firmas">'+F.firmas.map(function(x){return '<div>Firma: '+esc(x)+'<br>Nombre:</div>';}).join("")+'</div>';
+  $("impresion").innerHTML=h;window.print();
 }
 
 function consulta(){
@@ -344,8 +433,8 @@ document.addEventListener("click",function(ev){
   else if(b.dataset.id){abrir(b.dataset.id);}
   else if(b.id==="volver"){cerrar();}
   else if(b.dataset.vez){vez=b.dataset.vez;$("medidas").innerHTML=medidas(TIPOS[actual.tipo]);}
-  else if(b.dataset.formato){abrirForm(b.dataset.formato);}
-  else if(b.dataset.imprimir){imprimir(b.dataset.imprimir);}
+  else if(b.dataset.formato){construirForm(b.dataset.formato);}
+  else if(b.dataset.imprimir){imprimir();}
 });
 $("buscar").addEventListener("input",pintarLista);
 pintarFiltros(); pintarLista(); consulta();
