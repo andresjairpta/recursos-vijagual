@@ -1,0 +1,353 @@
+<!-- titulo: Asistente de la Ruta de Convivencia | descripcion: Guía para docentes del CER Vijagual: qué hacer ante cada situación de convivencia o de riesgo según el Manual de Convivencia 2027, con formatos listos para imprimir y firmar. -->
+<style>
+.alerta{background:#fdecea;border:2px solid var(--rojo);border-radius:12px;padding:10px 14px;margin:10px 0;font-size:1rem}
+.alerta a{color:var(--rojo);font-weight:800}
+.privacidad{font-size:.82rem;color:var(--suave);background:#f3f6f3;border-radius:10px;padding:8px 12px}
+#buscar{font-size:1.05rem;padding:12px 14px;margin:8px 0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.chip{background:#fff;border:1.5px solid var(--borde);color:var(--tinta);padding:6px 12px;border-radius:999px;font-size:.88rem}
+.chip.activo{background:var(--verde);border-color:var(--verde);color:#fff}
+.sit{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:#fff;color:var(--tinta);border:1px solid var(--borde);border-radius:12px;padding:10px 12px;margin:6px 0}
+.sit:hover{border-color:var(--verde)}
+.sit .t{font-weight:700}
+.sit .e{font-size:.82rem;color:var(--suave)}
+.badge{flex:none;font-size:.72rem;font-weight:800;border-radius:8px;padding:3px 7px;color:#fff;white-space:nowrap}
+.b-t1{background:#2f6db3}.b-t2{background:#c47a00}.b-t3{background:#b3261e}.b-leve{background:#5b6b60}.b-grave{background:#6b4a2f}.b-riesgo{background:#6a3d7a}.b-var{background:#3d5a80}
+.det h2{margin-top:.6em}
+.caja{border-radius:12px;padding:10px 14px;margin:10px 0}
+.caja.urg{background:#fdecea;border:2px solid var(--rojo)}
+.caja.prot{background:#f3eef7;border:1.5px solid #6a3d7a}
+.caja.nunca{background:#fff4e5;border:1.5px solid #c47a00}
+.pasos li{margin:6px 0}
+.pasos label{display:flex;gap:8px;align-items:flex-start;cursor:pointer}
+.pasos input{width:auto;margin-top:5px}
+.tel{display:inline-block;margin:3px 6px 3px 0;padding:6px 10px;border-radius:9px;background:#fff;border:1.5px solid var(--rojo);color:var(--rojo);font-weight:700;text-decoration:none}
+.tel.pend{border-style:dashed;color:var(--suave);border-color:var(--suave);font-weight:400}
+.medidas li{margin:4px 0}
+.medidas .quien{font-size:.8rem;color:var(--suave)}
+.seg{display:inline-flex;border:1.5px solid var(--verde);border-radius:10px;overflow:hidden;margin:4px 0 8px}
+.seg button{border-radius:0;background:#fff;color:var(--verde);padding:7px 12px}
+.seg button.activo{background:var(--verde);color:#fff}
+.formatos button{margin:4px 6px 4px 0}
+.form label{display:block;font-weight:700;font-size:.88rem;margin:8px 0 3px}
+.form textarea{font:inherit;width:100%;min-height:2.6em;padding:8px 10px;border:1px solid var(--borde);border-radius:8px}
+details{background:#fff;border:1px solid var(--borde);border-radius:12px;padding:8px 14px;margin:8px 0}
+summary{font-weight:700;cursor:pointer;color:var(--verde)}
+table.t{width:100%;border-collapse:collapse;font-size:.85rem;margin:8px 0}
+table.t th,table.t td{border:1px solid var(--borde);padding:5px 7px;text-align:left;vertical-align:top}
+table.t th{background:var(--verde-claro)}
+#impresion{display:none}
+@media print{
+  #impresion{display:block}
+  #impresion h2{font-size:14pt;margin:4mm 0 1mm;color:#000}
+  #impresion .ref{font-size:9pt;margin-bottom:3mm}
+  #impresion table{width:100%;border-collapse:collapse}
+  #impresion th,#impresion td{border:1px solid #000;padding:2mm;font-size:10pt;vertical-align:top;text-align:left}
+  #impresion th{width:38%;background:#eee}
+  #impresion td{height:12mm;white-space:pre-wrap}
+  #impresion .firmas{display:grid;grid-template-columns:1fr 1fr;gap:10mm 8mm;margin-top:12mm}
+  #impresion .firmas div{border-top:1px solid #000;padding-top:1mm;font-size:9pt}
+  footer{display:none}
+}
+</style>
+
+<div class="no-imprimir">
+<h1>Asistente de la Ruta de Convivencia</h1>
+<p class="sub">Basado en el Manual de Convivencia 2027 del CER Vijagual. Busque lo que pasó y siga los pasos. <b>Esta guía orienta, no decide:</b> la clasificación final la hace el docente o el comité, con debido proceso.</p>
+
+<div class="alerta">¿Alguien está herido o en peligro? <b>Protéjalo primero</b>, no lo deje solo y llame al <a href="tel:123">123</a>. Después siga la guía.</div>
+
+<p class="privacidad">🔒 Nada de lo que escriba en esta página se guarda ni se envía a ningún lado. Al cerrarla se borra. Imprima el formato, fírmelo y archívelo en físico con reserva.</p>
+
+<input id="buscar" type="search" autocomplete="off" placeholder="Escriba lo que pasó: pelea, celular, vapeador, memes, se quiere hacer daño, no lo recogieron…" aria-label="Buscar la situación">
+<div class="chips" id="filtros"></div>
+<div id="lista"></div>
+<div id="detalle" class="det"></div>
+
+<h2>Consulta rápida</h2>
+<details><summary>La escalera de medidas (capítulo 12)</summary><div id="escalera"></div></details>
+<details><summary>Debido proceso y plazos (capítulo 13)</summary><div id="proceso"></div></details>
+<details><summary>Lo que está prohibido siempre (numeral 12.2)</summary><ul id="prohibido"></ul></details>
+<details><summary>Directorio de la ruta de atención (capítulo 22)</summary><div id="directorio"></div></details>
+<p class="nota">Fuente: Manual de Convivencia 2027 del CER Vijagual (Ley 1620 de 2013, Decreto 1965 de 2013 y demás normas citadas en el manual). Si el manual cambia, esta guía se actualiza con él.</p>
+</div>
+
+<div id="impresion"></div>
+
+<script>
+(function(){
+"use strict";
+var DIR = {
+  "123": {n:"Línea única de emergencias", t:"123"},
+  "141": {n:"ICBF, protección a niños, niñas y adolescentes", t:"141"},
+  "122": {n:"Fiscalía General de la Nación", t:"122"},
+  "155": {n:"Orientación a mujeres víctimas de violencia", t:"155"},
+  "infancia": {n:"Policía de Infancia y Adolescencia, Carepa", t:""},
+  "policia": {n:"Estación de Policía de Carepa", t:""},
+  "comisaria": {n:"Comisaría de Familia de Carepa", t:""},
+  "icbfzonal": {n:"ICBF, Centro Zonal", t:""},
+  "personeria": {n:"Personería Municipal de Carepa", t:""},
+  "hospital": {n:"Hospital o centro de salud (urgencias)", t:""},
+  "salud": {n:"Secretaría de Salud de Carepa (salud mental)", t:""},
+  "defensoria": {n:"Defensoría del Pueblo, regional Urabá", t:""},
+  "victimas": {n:"Enlace de víctimas de la Alcaldía", t:""},
+  "seduca": {n:"Secretaría de Educación de Antioquia", t:""},
+  "orientador": {n:"Docente orientador del CER", t:""},
+  "director": {n:"Director rural del CER", t:""}
+};
+
+var ESC = [
+  [1,"Diálogo reflexivo y llamado de atención verbal, en privado","Docente"],
+  [2,"Acción reparadora: disculpa sincera, devolver, reponer o arreglar lo dañado, sin humillación","Docente o director de grupo"],
+  [3,"Registro en el observador y comunicación a la familia","Docente o director de grupo"],
+  [4,"Mediación con los jueces de paz o círculo restaurativo con el docente","Docente o jueces de paz"],
+  [5,"Compromiso pedagógico firmado por el estudiante y la familia (Anexo D)","Director de grupo"],
+  [6,"Trabajo pedagógico relacionado con el hecho (consulta, cartelera, exposición, campaña, cuidado de un espacio); nunca degradante","Director de grupo"],
+  [7,"Remisión a orientación, salud, ICBF o Comisaría de Familia","Director rural"],
+  [8,"Suspensión temporal de representaciones, salidas y actividades extracurriculares (no de las clases)","Director rural"],
+  [9,"Jornada de reflexión dentro del centro, de 1 a 3 días, supervisada, con plan de trabajo y encuentro restaurativo","Director rural, con concepto del comité"],
+  [10,"Matrícula en seguimiento: compromiso de permanencia revisado cada periodo (Anexo D)","Director rural, con concepto del comité"],
+  [11,"Desescolarización temporal hasta 5 días hábiles, con plan de trabajo, solo si la presencia del estudiante pone en riesgo a la víctima o a él mismo","Director rural, con concepto del comité y aviso a la Secretaría de Educación"],
+  [12,"Pérdida del cupo para el año siguiente, tras agotar las medidas anteriores","Consejo Directivo, con debido proceso y coordinación con la Secretaría de Educación"]
+];
+
+var TIPOS = {
+  t1:{et:"Tipo I", cls:"b-t1", camino:"A", num:"9.1",
+      quien:"El docente que lo presencia o lo conoce, en el momento, o los jueces de paz si las partes aceptan la mediación.",
+      pasos:["Reúna a las partes en un lugar tranquilo y deje que cada una cuente lo ocurrido, sin interrupciones.",
+             "Medie: busquen entre todos una solución que repare el daño (una disculpa, devolver o arreglar lo dañado, un acuerdo de trato) y que restablezca la relación.",
+             "Registre el acuerdo en el observador o en el acta de mediación (Anexo C).",
+             "Si hubo compromisos, el director de grupo informa a las familias.",
+             "En la semana siguiente, el director de grupo verifica que el acuerdo se cumplió. Si no se cumplió o se repite, se trata como tipo II."],
+      primera:[1,2,4], repite:[3,5,6], formatos:["C","B"]},
+  t2:{et:"Tipo II", cls:"b-t2", camino:"A", num:"9.2",
+      quien:"Informe de inmediato al director de grupo y al director rural. Decide el director rural o el docente que él designe, con el debido proceso (capítulo 13). El comité hace seguimiento.",
+      pasos:["Si hay lesiones, preste los primeros auxilios y, si hace falta, lleve al estudiante al centro de salud o al hospital. Deje constancia.",
+             "Si hay que restablecer derechos, el director rural remite el caso a la Comisaría de Familia, al ICBF o a la Personería.",
+             "Proteja a los involucrados de represalias (cambio de puesto, acompañamiento en descansos y trayectos internos).",
+             "Informe de inmediato y por escrito a las familias de todos los involucrados.",
+             "Escuche a las partes por separado, con reserva.",
+             "Promueva un acuerdo restaurativo (círculo, disculpa, reparación) y defina las medidas con el debido proceso.",
+             "Informe al Comité Escolar de Convivencia, que analiza el caso en su siguiente sesión y hace seguimiento.",
+             "Registre todo en el formato de registro (Anexo B) y en el libro del comité."],
+      primera:[2,3,4,5], repite:[6,7,8,9,10], formatos:["B","E","C","D"]},
+  t3:{et:"Tipo III", cls:"b-t3", camino:"A", num:"9.3", urgente:true,
+      quien:"El director rural, de inmediato. Cualquier adulto que lo conozca protege a la víctima y avisa sin demora.",
+      pasos:["Garantice la atención inmediata en salud física y mental de los involucrados; remita a las entidades y deje constancia.",
+             "Informe de inmediato a las familias. Si el presunto agresor es de la familia, no le informe a él: informe directamente a la autoridad.",
+             "El director rural informa de inmediato a la Policía de Infancia y Adolescencia y, según el caso, al ICBF y a la Fiscalía. Deje constancia.",
+             "Se cita al Comité Escolar de Convivencia y se le informa con reserva.",
+             "Proteja a la víctima, a quien se atribuye la agresión y a quienes informaron, aunque el caso ya esté en manos de la autoridad.",
+             "Reporte el caso en el Sistema de Información Unificado de Convivencia Escolar.",
+             "Haga seguimiento con la autoridad que asumió el caso y con el comité municipal de convivencia."],
+      nunca:["Investigar por cuenta propia o interrogar a la víctima.","Confrontar a la víctima con el agresor.","Pedir que muestren contenido íntimo.","Conciliar un delito.","Esperar a tener «pruebas» para avisar a la autoridad."],
+      llamar:["123","infancia","141","122"], primera:[7,8,9,10,11], repite:[10,12], formatos:["B","G","E"]},
+  leve:{et:"Incumplimiento leve", cls:"b-leve", camino:"B", num:"10.1",
+      quien:"El docente que lo observa.",
+      pasos:["Escuche al estudiante antes de aplicar cualquier medida.",
+             "Aplique la medida en el momento y regístrela.",
+             "Si se repite, informe a la familia. Tres incumplimientos leves de la misma clase en un periodo, después de un compromiso, se tratan como graves."],
+      primera:[1], repite:[2,3,5], formatos:["D"]},
+  grave:{et:"Incumplimiento grave", cls:"b-grave", camino:"B", num:"10.2",
+      quien:"El director de grupo, con conocimiento del director rural y el debido proceso del capítulo 13.",
+      pasos:["Escuche al estudiante y, si los hay, a los testigos.",
+             "Informe al director de grupo, que abre el proceso con conocimiento del director rural.",
+             "Cite por escrito al estudiante y a su acudiente para los descargos (Anexo E).",
+             "Decisión escrita y proporcional; el estudiante puede presentar reposición y apelación.",
+             "Haga seguimiento del compromiso."],
+      primera:[2,3,5,6], repite:[7,8,9,10], formatos:["B","E","D"]},
+  riesgo:{et:"Situación de riesgo", cls:"b-riesgo", camino:"C", num:"11",
+      quien:"Cualquier adulto que lo note actúa de inmediato y avisa al director rural y al docente orientador.",
+      pasos:[], primera:[], repite:[], formatos:["G","B"]}
+};
+
+var REGLAS_RIESGO = ["Escuche con calma, crea al estudiante, no lo juzgue y no le prometa guardar el secreto: explíquele que va a pedir ayuda para protegerlo.",
+  "No lo interrogue ni le pida que repita la historia ante varias personas. Anote lo que dijo con sus propias palabras.",
+  "La información solo la conocen quienes deben actuar."];
+
+/* Catálogo de situaciones del manual. tipo: t1 t2 t3 leve grave riesgo. */
+var SIT = [
+ {id:"discusion", tipo:"t1", t:"Discusión, insulto o burla ocasional entre compañeros", k:"pelea verbal grito grosería groseria insulto burla discusion"},
+ {id:"empujon", tipo:"t1", t:"Empujón, zancadilla o juego brusco sin lesión", k:"empujon empujar zancadilla brusco juego mano"},
+ {id:"apodo", tipo:"t1", t:"Apodo ofensivo o exclusión de un juego, una vez", k:"apodo sobrenombre excluir aislar no lo dejan jugar"},
+ {id:"comentario", tipo:"t1", t:"Comentario inapropiado sobre el cuerpo, el género o la orientación sexual, sin contacto y por primera vez", k:"comentario cuerpo gordo flaco gay marica genero orientacion piropo"},
+ {id:"mensaje", tipo:"t1", t:"Mensaje o publicación ofensiva aislada en el grupo del curso", k:"whatsapp grupo mensaje sticker ofensivo una vez"},
+ {id:"utiles", tipo:"t1", t:"Daño menor a los útiles de un compañero durante una discusión", k:"rompio cuaderno lapiz utiles daño"},
+ {id:"acoso", tipo:"t2", t:"Acoso escolar: burlas, apodos, exclusión o amenazas repetidas contra el mismo estudiante", k:"bullying matoneo acoso repetido siempre lo molestan intimidacion"},
+ {id:"ciberacoso", tipo:"t2", t:"Ciberacoso: memes, stickers, perfiles falsos o publicaciones para humillar", k:"ciberacoso ciberbullying memes redes facebook tiktok instagram perfil falso humillar", extra:["Pida a la víctima que no borre los mensajes y que guarde capturas con fecha, nombre del perfil y enlace.","Nadie reenvía el contenido ofensivo, ni siquiera como prueba.","Oriente a la familia para denunciarlo en la plataforma. Si hay contenido sexual o amenazas graves, se trata como tipo III (numeral 11.4)."]},
+ {id:"happy", tipo:"t2", t:"Grabar una agresión y difundirla (happy slapping)", k:"grabar pelea video difundir celular happy slapping", extra:["Quien graba y difunde también participa de la agresión.","Pida que se borre el video de los grupos y no lo reenvíe."]},
+ {id:"pelea", tipo:"t2", t:"Pelea con golpes que deja moretones o rasguños, sin incapacidad", k:"pelea golpes puños moreton rasguño agresion fisica"},
+ {id:"sexualfisica", tipo:"t2", t:"Agresión física con contenido sexual entre estudiantes (tocar, levantar la falda, bajar el pantalón), aunque sea la primera vez", k:"tocar tocamiento falda pantalon nalga senos contenido sexual", extra:["Si hubo acto sexual, uso de fuerza, amenaza o diferencia de poder, es violencia sexual: use la situación «Violencia sexual» (tipo III)."]},
+ {id:"discriminacion", tipo:"t2", t:"Discriminación reiterada por color de piel, etnia, origen, orientación sexual, identidad de género, discapacidad o condición económica", k:"racismo negro discriminacion venezolano migrante discapacidad pobre gay trans", num:"11.10", extra:["Un comentario aislado se atiende como tipo I, con una conversación reparadora sobre el daño que causa.","Si quien discrimina es un adulto del centro, use «Agresión de un adulto del centro a un estudiante»."]},
+ {id:"amenaza", tipo:"t2", t:"Amenazas, intimidación o chantaje entre estudiantes", k:"amenaza intimidar chantaje miedo a la salida"},
+ {id:"docente", tipo:"t2", t:"Agresión de un estudiante a un docente u otro adulto del centro", k:"insulto al profesor docente agredido irrespeto profe meme del profesor", num:"9.4", et:"Según la gravedad", cls:"b-var", extra:["Clasifíquelo con los mismos criterios: insulto ocasional, tipo I; burla reiterada o video difundido, tipo II; lesión o amenaza grave, tipo III.","El docente afectado no decide las medidas de su propio caso: las decide el director rural (o el Consejo Directivo si el afectado es el director rural).","Acompañe al docente; si hubo lesión, oriéntelo para acudir a su servicio de salud y reportar el accidente de trabajo.","Si es un posible delito: con 14 años o más lo conoce el Sistema de Responsabilidad Penal para Adolescentes; con menos de 14, se informa al ICBF."]},
+ {id:"noviazgo", tipo:"t2", t:"Violencia en el noviazgo: celos que controlan, revisar el celular, aislar, insultar, golpear o presionar", k:"novio novia pareja celos controla celular noviazgo", num:"11.16", extra:["Es tipo III si hay violencia sexual, lesiones o difusión de contenido íntimo.","Si uno de los dos es un adulto, use «Violencia sexual o señales de abuso»."], llamar:["155"]},
+ {id:"suplantacion", tipo:"t2", t:"Montaje con inteligencia artificial (deepfake) o suplantación de un compañero o docente", k:"deepfake inteligencia artificial montaje foto falsa suplantar perfil falso ia", num:"11.4", extra:["Es tipo III si el montaje es sexual o se usa para estafar (posible delito, Ley 2502 de 2025).","No reenvíe el montaje; descríbalo en el registro."]},
+ {id:"lesion", tipo:"t3", t:"Lesión que genera incapacidad médica", k:"herido fractura incapacidad sangre hospital lesion grave"},
+ {id:"violsexual", tipo:"t3", t:"Violencia sexual o señales de abuso (de un compañero, un adulto del centro, un familiar o alguien de la vereda)", k:"abuso violacion acoso sexual tocamientos adulto explotacion sexual", num:"11.3", llamar:["123","141","122","infancia"], extra:["Escuche sin interrumpir, crea al estudiante y dígale que no tiene la culpa. No le pida detalles, no revise su cuerpo y no lo confronte.","Si ocurrió en las últimas 72 horas, llévelo de inmediato a urgencias: la atención es urgente y gratuita.","Denunciar ese mismo día es obligación legal de los docentes (Ley 1146 de 2007).","Embarazo de una niña menor de 14 años: siempre se denuncia."]},
+ {id:"intimas", tipo:"t3", t:"Difundir, reenviar o guardar fotos o videos íntimos de un menor de edad", k:"pack fotos intimas desnudo nudes difundir reenviar video sexual", num:"11.4", extra:["Nadie reenvía, descarga ni muestra la imagen, ni siquiera como prueba: hacerlo es delito. Descríbala en el acta sin copiarla.","La víctima no se castiga: se protege."]},
+ {id:"sextorsion", tipo:"t3", t:"Sextorsión o grooming (un adulto engaña o chantajea a un estudiante por internet)", k:"chantaje fotos adulto internet grooming sextorsion extorsion virtual", num:"11.4", llamar:["123","122","infancia"]},
+ {id:"armas", tipo:"t3", t:"Porte o uso de armas para amenazar o herir", k:"arma cuchillo navaja machete pistola revolver amenazar", num:"11.2", extra:["Si hay riesgo inmediato, no forcejee: aleje a los demás estudiantes y llame al 123.","Si no hay riesgo, pida con calma que le entregue el objeto y guárdelo; un arma de fuego, un arma blanca o un explosivo se entrega a la Policía.","Escuche al estudiante: a veces se porta un arma por miedo a una amenaza."]},
+ {id:"venta", tipo:"t3", t:"Venta, distribución u ofrecimiento de sustancias psicoactivas", k:"vende droga marihuana microtrafico jibaro sustancias ofrece", num:"11.1", llamar:["infancia","141"], extra:["Detrás de la venta suele haber adultos que utilizan al menor: además de responder, es víctima de utilización y debe ser protegido."]},
+ {id:"hurto", tipo:"t3", t:"Hurto con violencia o extorsión", k:"robo con violencia atraco extorsion vacuna cobrar"},
+ {id:"muerte", tipo:"t3", t:"Amenaza de muerte", k:"amenaza de muerte lo van a matar"},
+ {id:"celular", tipo:"leve", t:"Uso del celular en clase sin autorización", k:"celular telefono movil clase audifonos jugar", num:"7.5", extra:["Primera vez: pida guardarlo y haga un llamado de atención privado.","Si se repite el mismo día: retenga el celular apagado, sin revisar su contenido, y devuélvalo al estudiante al final de la jornada.","Desde la tercera vez en el periodo: se entrega solo al acudiente y se acuerda un compromiso.","De transición a quinto no se trae celular; si la familia lo necesita por el trayecto, lo guarda el docente."]},
+ {id:"tarde", tipo:"leve", t:"Llegar tarde sin causa justificada", k:"tarde retardo llega tarde puntualidad", num:"7.1", extra:["El estudiante entra a clase siempre: nunca se le deja fuera del colegio.","Si se repite tres veces en un periodo, el director de grupo habla con la familia para entender la causa (transporte, trabajo, distancia)."]},
+ {id:"materiales", tipo:"leve", t:"No traer los materiales o las tareas", k:"tareas materiales cuaderno no trajo", extra:["Nadie pierde clase ni nota por no tener útiles o uniforme por causas económicas (numeral 7.12)."]},
+ {id:"interrumpe", tipo:"leve", t:"Interrumpir la clase de forma reiterada", k:"indisciplina interrumpe habla charla molesta clase desorden"},
+ {id:"salesalon", tipo:"leve", t:"Salir del salón sin permiso", k:"sale del salon sin permiso"},
+ {id:"basura", tipo:"leve", t:"Botar basura fuera de su lugar o descuidar los espacios", k:"basura sucio desorden aseo"},
+ {id:"vocabulario", tipo:"leve", t:"Vocabulario soez ocasional, sin dirigirlo a una persona", k:"grosería groserias malas palabras"},
+ {id:"citaciones", tipo:"leve", t:"No entregar a la familia las citaciones o los informes", k:"citacion no entrego informe"},
+ {id:"vapeo", tipo:"grave", t:"Fumar o vapear en el colegio, o portar vapeadores o cigarrillos", k:"vape vapeador vaper cigarrillo electronico fumar tabaco nicotina pod", num:"10.2 y 11.1", extra:["Retenga el dispositivo apagado y entréguelo solo al acudiente.","Active además la ruta de salud (situación «Consumo de sustancias»): la mayoría de los vapeadores tiene nicotina, que genera dependencia.","Está prohibido con o sin nicotina (Leyes 1335 de 2009 y 2354 de 2024)."]},
+ {id:"alcohol", tipo:"grave", t:"Consumir o portar bebidas alcohólicas en el colegio o en una actividad escolar", k:"alcohol trago cerveza aguardiente borracho", extra:["Si el estudiante está intoxicado, atiéndalo primero (situación «Consumo de sustancias»)."]},
+ {id:"fraude", tipo:"grave", t:"Fraude: copiar, dejarse copiar, suplantar o presentar como propio un trabajo hecho por otra persona o por una inteligencia artificial", k:"copia copiar fraude plagio chatgpt inteligencia artificial trampa evaluacion", extra:["La evidencia se repite en otra fecha, con otra versión, y se valora según el SIEE. No se pone 1,0 automático: el SIEE valora el aprendizaje, no la conducta."]},
+ {id:"falsificar", tipo:"grave", t:"Falsificar firmas, excusas, notas o documentos", k:"falsifico firma excusa falsa nota"},
+ {id:"dano", tipo:"grave", t:"Dañar intencionalmente bienes del centro, de compañeros, la huerta o la granja", k:"daño dañó rompio pupitre vidrio vandalismo pared rayar", extra:["La reparación se acuerda con la familia según sus posibilidades (arreglar, reponer o cuidar lo dañado). No hay multas."]},
+ {id:"apropiarse", tipo:"grave", t:"Apropiarse de objetos ajenos sin violencia", k:"robo hurto se llevo cogio sin permiso perdida"},
+ {id:"evasion", tipo:"grave", t:"Salir del colegio sin autorización (evasión)", k:"se volo se fue evasion salio del colegio fuga", num:"10.2 y 7.14", extra:["Si todavía no aparece, use primero la situación «Estudiante que no aparece»."]},
+ {id:"grabar", tipo:"grave", t:"Grabar o fotografiar a otras personas sin su consentimiento, sin difundirlo", k:"grabo foto sin permiso video baño"},
+ {id:"apuestas", tipo:"grave", t:"Apuestas en línea, préstamos con intereses o retos virales peligrosos", k:"apuestas casino betplay prestamo gota a gota reto viral challenge", num:"10.2 y 11.12", extra:["Si hay amenazas por deudas, trátelo como tipo III.","Si circula un reto peligroso, avise al director rural para informar a las familias sin difundir el contenido."]},
+ {id:"cortopunzante", tipo:"grave", t:"Traer un objeto cortopunzante sin intención de hacer daño", k:"navaja bisturi cuchilla tijera punta objeto", num:"10.2 y 11.2", extra:["Las herramientas de la granja solo se usan con autorización y quedan bajo custodia del docente."]},
+ {id:"mentir", tipo:"grave", t:"Mentir a un docente o directivo para encubrir una situación grave", k:"mentira encubrir"},
+ {id:"compromiso", tipo:"grave", t:"Incumplir un compromiso pedagógico firmado", k:"incumplio compromiso"},
+ {id:"animal", tipo:"grave", t:"Maltratar animales de la granja o del entorno", k:"animal perro gato gallina maltrato", num:"7.10", extra:["El maltrato animal puede ser delito (Ley 1774 de 2016)."]},
+ {id:"consumo", tipo:"riesgo", t:"Consumo de sustancias: un estudiante consume, porta para consumo o llega bajo el efecto", k:"droga marihuana consumo trabado oler vape alcohol borracho sustancias", num:"11.1", llamar:["123","hospital"], pasos:["Si está intoxicado o tiene síntomas físicos, atiéndalo de inmediato y llame al 123 o al centro de salud. No lo deje solo.","Retenga el dispositivo o la sustancia y entréguela al acudiente; una sustancia ilícita se entrega a la Policía de Infancia y Adolescencia con constancia.","Informe a la familia el mismo día.","El director de grupo y el director rural escuchan al estudiante por separado, sin acusarlo, para entender qué pasa.","Remita a la EPS o al hospital para valoración en salud mental y consumo, y acuerde con la familia un plan de acompañamiento.","Aplique la medida pedagógica del incumplimiento grave, con debido proceso.","El comité hace seguimiento."], nunca:["Requisas humillantes o desnudar a un estudiante.","Revisar el morral sin la presencia del estudiante.","Pruebas de orina o de sangre en el colegio.","Exponer el caso ante el grupo."]},
+ {id:"suicidio", tipo:"riesgo", t:"Ideas de hacerse daño, autolesiones o intento de suicidio", k:"suicidio cortes autolesion se quiere morir hacerse daño cutting depresion", num:"11.5", llamar:["123","hospital","salud"], pasos:["Nunca deje solo al estudiante. Un adulto se queda con él en un lugar tranquilo.","Pregúntele directamente si ha pensado en hacerse daño: preguntar no da la idea, abre la puerta a pedir ayuda.","Retire de su alcance objetos con los que pueda lastimarse.","Si hay riesgo inminente (tiene un plan, un medio o ya se hizo daño), llame al 123 y llévelo a urgencias, acompañado.","Llame a la familia de inmediato y explíquele que no lo deje solo y que retire en casa venenos, agroquímicos, medicamentos y armas.","Remita por escrito a la EPS para valoración en salud mental y verifique que la cita se cumpla.","El director rural reporta el caso por la ruta de salud del municipio.","Acuerde un plan de regreso a clase con apoyos y un adulto de confianza.","Guarde reserva: el grupo no conoce los detalles."]},
+ {id:"pequenos", tipo:"riesgo", t:"Conductas sexuales entre niños pequeños que no parecen propias de la edad", k:"niños pequeños preescolar primaria tocarse juego sexual", num:"11.3", llamar:["141"], pasos:["La curiosidad por el cuerpo es parte del desarrollo y se orienta con calma. Es una situación de riesgo cuando hay diferencia de edad o de poder, fuerza, engaño o chantaje, imitación de actos sexuales de adultos, repetición después de la orientación o angustia en el otro niño.","Proteja al niño afectado e informe a las dos familias.","Entienda que el niño que tiene esa conducta pudo haber sido víctima o estar expuesto a contenido sexual: remítalo al ICBF y a salud, sin castigarlo. Los menores de 14 años no son responsables penalmente.","El docente orientador hace el seguimiento."]},
+ {id:"intrafamiliar", tipo:"riesgo", t:"Violencia en el hogar, negligencia o abandono", k:"le pegan en la casa maltrato hambre abandono golpes papa mama descuido", num:"11.7", llamar:["comisaria","141"], pasos:["Escuche sin juzgar y anote lo que el estudiante dice con sus palabras.","El director rural informa a la Comisaría de Familia o al ICBF el mismo día.","No cite al presunto agresor para «hablar del tema» antes de que intervenga la autoridad.","El colegio sigue siendo un lugar seguro: acompañe al estudiante y coordine con la autoridad."]},
+ {id:"trabajo", tipo:"riesgo", t:"Trabajo infantil: trabajos peligrosos o que impiden estudiar", k:"trabaja finca empacadora fumigar agroquimicos jornal trabajo infantil", num:"11.8", llamar:["comisaria"], pasos:["El director de grupo habla con la familia, explica la norma y busca alternativas.","Ningún menor de 18 años puede hacer trabajos peligrosos (agroquímicos, herramientas cortantes, cargas pesadas, jornadas largas). Menores de 15 no trabajan.","Si el trabajo es peligroso o impide estudiar, el director rural informa a la Comisaría de Familia o al inspector de trabajo.","Ayudar en casa o en la parcela en tareas propias de su edad, sin riesgo y sin dejar de estudiar, no es trabajo infantil."]},
+ {id:"reclutamiento", tipo:"riesgo", t:"Reclutamiento o utilización por grupos armados o bandas", k:"grupo armado reclutamiento vueltas mandados plata moto banda clan", num:"11.9", llamar:["personeria","141"], pasos:["Escuche con reserva absoluta. No comente el caso en el grupo ni en reuniones abiertas: puede poner en riesgo vidas.","El director rural informa de manera confidencial al ICBF y a la Personería, que activan la ruta de prevención y protección.","Acuerde con la familia, si es seguro, un plan de protección.","El estudiante utilizado por un grupo es una víctima y se protege como tal."]},
+ {id:"embarazo", tipo:"riesgo", t:"Embarazo, maternidad o paternidad de un estudiante", k:"embarazada embarazo bebe mama papa lactancia", num:"11.6", pasos:["La estudiante embarazada, madre o lactante, y el estudiante padre, siguen en su grado, su jornada y su grupo. No es motivo de medidas ni de cambio de jornada.","El director de grupo acuerda con la familia la flexibilización según el SIEE (controles, licencia, lactancia).","Verifique que esté afiliada a salud y asista a los controles.","Si es menor de 14 años, o hay señales de violencia o de una relación con un adulto en condición de poder, use «Violencia sexual o señales de abuso»."]},
+ {id:"sexting", tipo:"riesgo", t:"Sexting: un estudiante envió voluntariamente una imagen íntima propia", k:"sexting envio foto intima pack novio", num:"11.4", pasos:["Oriente y proteja: no se castiga a quien envió la imagen.","Explíquele el riesgo de chantaje y difusión, y que no siga enviando ni reenvíe.","Si la imagen ya se difundió, se guardó o hay chantaje, use «Difundir fotos íntimas de un menor» o «Sextorsión» (tipo III)."]},
+ {id:"adulto", tipo:"riesgo", t:"Agresión de un adulto del centro contra un estudiante (física, verbal, psicológica, sexual o discriminación)", k:"profesor docente le pego grito humillo maltrato del profesor celador", num:"11.13", llamar:["seduca","personeria"], pasos:["Proteja de inmediato al estudiante y sepárelo del adulto.","Informe a la familia.","Si es violencia sexual o un posible delito, informe a la autoridad.","El director rural traslada el caso a la Secretaría de Educación para el proceso disciplinario. Si el señalado es el director rural, se informa directamente a la Secretaría o a la Personería.","Mientras se resuelve, el estudiante no queda expuesto. Este caso no se concilia entre el adulto y el estudiante."]},
+ {id:"noaparece", tipo:"riesgo", t:"Un estudiante no aparece durante la jornada", k:"no aparece perdido desaparecido no esta", num:"7.14", llamar:["123","director"], pasos:["Avise de inmediato al director rural y busquen en todo el centro durante no más de 10 minutos.","Si no aparece, llame a la familia y, si no saben dónde está, a la Policía (123). No espere ningún plazo.","Cuando aparezca, escúchelo para entender por qué salió. Si hay un riesgo, active la situación que corresponda.","Si salió por su cuenta, después se trata como incumplimiento grave (evasión)."]},
+ {id:"recogida", tipo:"riesgo", t:"Nadie recoge al estudiante, o llega a recogerlo un adulto no autorizado o en estado de embriaguez", k:"no lo recogen recoger salida borracho papa separado custodia autorizado", num:"7.13", llamar:["infancia"], pasos:["Entregue al estudiante solo a los adultos autorizados en su ficha (Anexo K). A un menor de edad solo si la familia lo autorizó por escrito y tiene al menos 14 años.","Padres separados: los dos tienen los mismos derechos, salvo una decisión de juez o comisaría que el centro tenga en copia.","No lo entregue a un adulto en evidente estado de embriaguez o bajo el efecto de sustancias: llame a otro autorizado.","Si nadie lo recoge, un docente se queda con él y llama a la familia y a los autorizados. Después de una hora sin respuesta, el director rural informa a la Policía de Infancia y Adolescencia o al ICBF.","Nunca deje a un estudiante solo ni lo envíe a casa por su cuenta."]},
+ {id:"accidente", tipo:"riesgo", t:"Accidente escolar o estudiante enfermo durante la jornada", k:"accidente se cayo golpe fiebre enfermo vomito herida primeros auxilios", num:"7.9", llamar:["123","hospital"], pasos:["Atienda de inmediato con los primeros auxilios y el botiquín, sin mover al estudiante si hay sospecha de lesión grave.","Llame a la familia y, si la lesión lo requiere, al 123 o lleve al estudiante a urgencias acompañado de un adulto del centro.","Registre el accidente (qué pasó, dónde, qué se hizo) y repórtelo a la póliza estudiantil.","Revise después la causa para evitar que se repita.","Los docentes no dan medicamentos sin fórmula médica y autorización escrita de la familia."]},
+ {id:"ordenpublico", tipo:"riesgo", t:"Orden público: enfrentamientos, paro armado, amenazas o personas armadas cerca del colegio", k:"disparos combate paro armado orden publico amenaza armados", num:"11.15", llamar:["123","policia","defensoria","personeria"], pasos:["Los estudiantes permanecen en el aula o en el lugar más protegido, lejos de puertas y ventanas, con su docente. Nadie sale hasta que el director rural indique que es seguro.","El director rural se comunica con la Policía, la Secretaría de Educación y las familias por el canal oficial; los estudiantes se entregan solo a sus acudientes o autorizados.","No difunda rumores, fotos ni audios en los grupos de mensajería.","Las amenazas se manejan con reserva absoluta y se informan a la Personería y a la Policía.","Nadie armado puede ingresar al centro: si ocurre, se informa a la Personería y a la Defensoría del Pueblo."]},
+ {id:"emergencia", tipo:"riesgo", t:"Emergencia o desastre: sismo, inundación, incendio o vendaval", k:"temblor sismo terremoto inundacion incendio vendaval emergencia evacuar", num:"11.14", llamar:["123"], pasos:["Siga el Plan Escolar de Gestión del Riesgo: rutas de evacuación y punto de encuentro.","Cada docente lleva a su grupo y pasa lista en el punto de encuentro.","Nadie sale del centro hasta que un adulto autorizado lo recoja."]},
+ {id:"duelo", tipo:"riesgo", t:"Duelo: muere un estudiante, un docente o un familiar cercano de un estudiante", k:"murio muerte fallecio duelo luto", num:"11.18", pasos:["El director rural informa con cuidado y con el consentimiento de la familia, sin detalles innecesarios.","El docente orientador acompaña al grupo y a los más cercanos, con un espacio de despedida respetuoso de sus creencias.","El estudiante en duelo tiene flexibilidad académica según el SIEE y un adulto de confianza.","Esté atento en los días siguientes a señales de riesgo (situación «Ideas de hacerse daño»)."]},
+ {id:"victima", tipo:"riesgo", t:"Llega un estudiante víctima del conflicto o desplazado", k:"desplazado victima conflicto llego sin papeles documentos", num:"11.17", llamar:["victimas","personeria"], pasos:["Matricúlelo de inmediato, aunque no tenga documentos ni certificados, y sin costo. El centro ayuda a completar los papeles.","Maneje su condición con reserva.","Con su consentimiento y el de su familia, el docente orientador lo remite a la atención psicosocial para víctimas por medio de la Personería o del enlace de víctimas."]}
+];
+
+function norm(s){return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function $(id){return document.getElementById(id);}
+
+var FILTROS=[["todas","Todas"],["A","Convivencia (tipos I, II y III)"],["B","Incumplimientos"],["C","Riesgo y protección"]];
+var filtro="todas";
+
+function datos(s){var T=TIPOS[s.tipo];return {et:s.et||T.et, cls:s.cls||T.cls, num:s.num||T.num, camino:T.camino};}
+
+function pintarFiltros(){
+  $("filtros").innerHTML=FILTROS.map(function(f){return '<button class="chip'+(f[0]===filtro?' activo':'')+'" data-f="'+f[0]+'">'+f[1]+'</button>';}).join("");
+}
+function pintarLista(){
+  var q=norm($("buscar").value.trim());
+  var palabras=q?q.split(/\s+/):[];
+  var res=SIT.filter(function(s){
+    if(filtro!=="todas"&&TIPOS[s.tipo].camino!==filtro)return false;
+    if(!palabras.length)return true;
+    var h=norm(s.t+" "+s.k);
+    return palabras.every(function(p){return h.indexOf(p)>=0;});
+  });
+  $("lista").innerHTML=res.length?res.map(function(s){var d=datos(s);
+    return '<button class="sit" data-id="'+s.id+'"><span class="badge '+d.cls+'">'+d.et+'</span><span><span class="t">'+esc(s.t)+'</span><br><span class="e">Manual, numeral '+d.num+'</span></span></button>';}).join("")
+    :'<p class="nota">No encontré esa situación. Pruebe con otra palabra o revise la guía rápida del Anexo A del manual. Si alguien está en riesgo, protéjalo y avise al director rural.</p>';
+}
+
+function telefonos(keys){
+  return keys.map(function(k){var d=DIR[k];if(!d)return "";
+    return d.t?'<a class="tel" href="tel:'+d.t+'">'+esc(d.n)+' · '+d.t+'</a>':'<span class="tel pend">'+esc(d.n)+' · por completar en el capítulo 22</span>';}).join("");
+}
+function lista(arr,cls){return '<ol class="'+(cls||"pasos")+'">'+arr.map(function(p){return '<li><label><input type="checkbox"> <span>'+esc(p)+'</span></label></li>';}).join("")+'</ol>';}
+
+var actual=null, vez="primera";
+function abrir(id){
+  actual=SIT.filter(function(s){return s.id===id;})[0]; vez="primera";
+  $("lista").style.display="none"; $("filtros").style.display="none"; $("buscar").style.display="none";
+  pintarDetalle(); window.scrollTo(0,$("detalle").offsetTop-10);
+}
+function cerrar(){
+  actual=null; $("detalle").innerHTML="";
+  $("lista").style.display=""; $("filtros").style.display=""; $("buscar").style.display="";
+}
+function medidas(T){
+  if(T.camino==="C") return '<p><b>No se castiga: se protege.</b> La medida es la remisión y el acompañamiento (escalón 7). Si además hubo daño a otras personas, se activa también la situación de convivencia que corresponda.</p>';
+  var ids=vez==="primera"?T.primera:T.repite;
+  var html='<div class="seg"><button data-vez="primera" class="'+(vez==="primera"?"activo":"")+'">Primera vez</button><button data-vez="repite" class="'+(vez==="repite"?"activo":"")+'">Se repite o ya hubo compromiso</button></div>';
+  html+='<ul class="medidas">'+ids.map(function(n){var e=ESC[n-1];return '<li><b>Escalón '+e[0]+'.</b> '+esc(e[1])+' <span class="quien">· Decide: '+esc(e[2])+'</span></li>';}).join("")+'</ul>';
+  html+='<p class="nota">Se escoge la medida proporcional según la edad, la gravedad y la reiteración, después de escuchar al estudiante (atenuantes y agravantes en el numeral 12.3). Si el estudiante tiene PIAR, las medidas se ajustan a su plan (numeral 12.4). En preescolar y primeros grados solo se usan los escalones 1 a 5.</p>';
+  return html;
+}
+function pintarDetalle(){
+  var s=actual, T=TIPOS[s.tipo], d=datos(s);
+  var h='<button class="sec2" id="volver">← Volver a la lista</button>';
+  h+='<h2>'+esc(s.t)+'</h2><p><span class="badge '+d.cls+'">'+d.et+'</span> <span class="nota">Manual de Convivencia 2027, numeral '+d.num+'</span></p>';
+  var llamar=(s.llamar||[]).concat(T.llamar||[]).filter(function(v,i,a){return a.indexOf(v)===i;});
+  if(T.urgente||llamar.length){
+    h+='<div class="caja urg"><b>'+(T.urgente?'Actúe hoy mismo. Llame:':'Contactos para esta situación:')+'</b><br>'+telefonos(llamar.length?llamar:["123"])+'</div>';
+  }
+  if(T.camino==="C"){h+='<div class="caja prot"><b>Antes de todo:</b>'+lista(REGLAS_RIESGO)+'</div>';}
+  h+='<h3>Quién actúa</h3><p>'+esc(T.quien)+'</p>';
+  var pasos=(s.pasos&&s.pasos.length)?s.pasos:T.pasos;
+  h+='<h3>Pasos'+(T.camino!=="C"?' del protocolo ('+T.et+')':'')+'</h3>'+lista(pasos);
+  if(s.extra&&s.extra.length){h+='<h3>En esta situación, además</h3>'+lista(s.extra);}
+  var nunca=(s.nunca||[]).concat(T.nunca||[]);
+  if(nunca.length){h+='<div class="caja nunca"><b>Lo que nunca se hace:</b><ul>'+nunca.map(function(n){return '<li>'+esc(n)+'</li>';}).join("")+'</ul></div>';}
+  h+='<h3>Medidas</h3><div id="medidas">'+medidas(T)+'</div>';
+  h+='<h3>Formatos para imprimir</h3><div class="formatos">'+T.formatos.map(function(f){return '<button data-formato="'+f+'">'+FORM[f].t+'</button>';}).join("")+'</div><div id="form"></div>';
+  h+='<p class="nota">Debido proceso: capítulo 13 del manual (abajo, en Consulta rápida).</p>';
+  $("detalle").innerHTML=h;
+}
+
+var FORM={
+  B:{t:"Registro de la situación (Anexo B)", campos:["Fecha, hora y lugar","Quién reporta","Estudiantes involucrados y grado","Hechos (lo que se vio o se dijo, sin opiniones)","Camino y tipo","Atención inmediata y protección","Familias informadas (quién, cuándo, cómo)","Remisiones realizadas","Medida y seguimiento"], firmas:["Quien registra"]},
+  C:{t:"Acta de mediación o acuerdo restaurativo (Anexo C)", campos:["Fecha · Participantes · Mediador (docente o juez de paz)","¿Qué pasó? (versión de cada parte)","¿A quién afectó y cómo?","¿Qué se necesita para reparar el daño?","Acuerdos (qué, quién, cuándo)","Fecha de verificación"], firmas:["Parte 1","Parte 2","Mediador"]},
+  D:{t:"Compromiso pedagógico o de permanencia (Anexo D)", campos:["Estudiante · Grado · Fecha · Tipo (compromiso pedagógico o matrícula en seguimiento)","Situación que lo origina","Metas del estudiante (concretas y verificables)","Apoyos del centro","Compromisos de la familia","Fechas de revisión","Consecuencia si no se cumple (siguiente escalón)"], firmas:["Estudiante","Acudiente","Director de grupo","Director rural"]},
+  E:{t:"Citación y descargos (Anexo E)", campos:["Estudiante · Acudiente · Fecha y hora de la citación","Hechos que se le atribuyen y pruebas","Versión del estudiante (con sus palabras)","Pruebas que aporta","¿Pidió la presencia del personero?"], firmas:["Estudiante","Acudiente","Quien recibe los descargos"]},
+  G:{t:"Remisión a una entidad (Anexo G)", campos:["Entidad a la que se remite · Fecha","Estudiante · Edad · Grado · Acudiente y contacto","Motivo de la remisión (sin detalles que revictimicen)","Acciones realizadas por el centro","Lo que se solicita a la entidad","Responsable del seguimiento en el centro"], firmas:["Director rural","Recibido por la entidad"]}
+};
+
+function hoy(){var d=new Date();return d.toLocaleDateString("es-CO",{day:"2-digit",month:"long",year:"numeric"});}
+function prellenar(f,c){
+  var s=actual,d=datos(s);
+  if(c==="Camino y tipo")return d.et+" · "+s.t+" (Manual, numeral "+d.num+")";
+  if(c==="Situación que lo origina")return s.t;
+  if(c.indexOf("Fecha, hora y lugar")===0||c.indexOf("Entidad a la que se remite")===0||c.indexOf("Fecha · Participantes")===0)return hoy()+" · ";
+  return "";
+}
+function abrirForm(f){
+  var F=FORM[f];
+  $("form").innerHTML='<div class="tarjeta form"><b>'+F.t+'</b><p class="nota">Escriba lo necesario o deje en blanco para llenar a mano. Nada se guarda.</p>'+
+    F.campos.map(function(c,i){return '<label for="c'+i+'">'+esc(c)+'</label><textarea id="c'+i+'" rows="2">'+esc(prellenar(f,c))+'</textarea>';}).join("")+
+    '<p><button data-imprimir="'+f+'">Imprimir este formato</button></p></div>';
+}
+function imprimir(f){
+  var F=FORM[f],d=datos(actual);
+  var filas=F.campos.map(function(c,i){return '<tr><th>'+esc(c)+'</th><td>'+esc($("c"+i).value)+'</td></tr>';}).join("");
+  $("impresion").innerHTML='<h2>'+esc(F.t.toUpperCase())+'</h2><div class="ref">Manual de Convivencia 2027 · Situación: '+esc(actual.t)+' · '+esc(d.et)+', numeral '+esc(d.num)+'. Documento reservado: se archiva con reserva (Ley 1581 de 2012).</div><table>'+filas+'</table><div class="firmas">'+F.firmas.map(function(x){return '<div>Firma: '+esc(x)+'</div>';}).join("")+'</div>';
+  window.print();
+}
+
+function consulta(){
+  $("escalera").innerHTML='<table class="t"><tr><th>Escalón</th><th>Medida</th><th>Quién decide</th></tr>'+ESC.map(function(e){return '<tr><td>'+e[0]+'</td><td>'+esc(e[1])+'</td><td>'+esc(e[2])+'</td></tr>';}).join("")+'</table><p class="nota">Se sube de escalón cuando el anterior no funcionó, salvo en hechos graves. Desde el escalón 3 todo se registra y se informa a la familia.</p>';
+  var P=[["1. Conocimiento","Se atiende la emergencia y se protege","Quien conoce el hecho","De inmediato"],["2. Apertura","Registro (Anexo B) y citación escrita al estudiante y al acudiente","Director de grupo (grave) o director rural (tipos II y III)","Hasta 3 días hábiles"],["3. Descargos","Versión y pruebas del estudiante, con su acudiente (Anexo E)","Estudiante y acudiente","En la citación"],["4. Análisis","Pruebas, atenuantes y agravantes; concepto del comité en tipos II y III","Quien decide","Hasta 5 días hábiles"],["5. Decisión","Escrita y con sus razones, o archivo","Según la escalera","Al terminar el análisis"],["6. Notificación","Entrega de la decisión con firma de recibo","Quien decide","Hasta 2 días hábiles"],["7. Recursos","Reposición ante quien decidió; apelación ante el Consejo Directivo","Estudiante y acudiente","3 días hábiles"],["8. Respuesta","Se confirma, modifica o revoca","Quien decidió o Consejo Directivo","5 días hábiles; apelación hasta 15"],["9. Seguimiento","Cumplimiento de la medida y los acuerdos","Director de grupo y comité","Según el compromiso"]];
+  $("proceso").innerHTML='<table class="t"><tr><th>Paso</th><th>Qué se hace</th><th>Quién</th><th>Plazo</th></tr>'+P.map(function(r){return '<tr><td>'+r.map(esc).join("</td><td>")+'</td></tr>';}).join("")+'</table><p class="nota">Garantías: conocer los hechos y las pruebas, ser escuchado con el acudiente (y el personero si lo pide), presunción de inocencia, proporcionalidad, no dos medidas por el mismo hecho, decisión escrita y recursos. Tipo I e incumplimientos leves no requieren el procedimiento completo.</p>';
+  $("prohibido").innerHTML=["Castigo físico, gritos, insultos, apodos o trato humillante (Ley 2089 de 2021).","Exponer al estudiante ante el grupo o forzarlo a pedir disculpas en público.","Sanciones colectivas.","Bajar las notas académicas por comportamiento.","Sacar al estudiante del salón sin supervisión, dejarlo fuera del colegio o devolverlo a casa sin su acudiente.","Negar el refrigerio, el restaurante escolar, el agua o el baño.","Retener documentos, certificados o informes.","Multas o cobros.","Quedarse de forma permanente con objetos del estudiante.","Sancionar al estudiante por la conducta de su familia.","Desescolarizar como castigo o sin plan de trabajo."].map(function(x){return '<li>'+esc(x)+'</li>';}).join("");
+  $("directorio").innerHTML='<p>'+telefonos(Object.keys(DIR))+'</p><p class="nota">Los teléfonos locales se completan en el capítulo 22 del manual.</p>';
+}
+
+document.addEventListener("click",function(ev){
+  var b=ev.target.closest("button"); if(!b)return;
+  if(b.dataset.f){filtro=b.dataset.f;pintarFiltros();pintarLista();}
+  else if(b.dataset.id){abrir(b.dataset.id);}
+  else if(b.id==="volver"){cerrar();}
+  else if(b.dataset.vez){vez=b.dataset.vez;$("medidas").innerHTML=medidas(TIPOS[actual.tipo]);}
+  else if(b.dataset.formato){abrirForm(b.dataset.formato);}
+  else if(b.dataset.imprimir){imprimir(b.dataset.imprimir);}
+});
+$("buscar").addEventListener("input",pintarLista);
+pintarFiltros(); pintarLista(); consulta();
+})();
+</script>
