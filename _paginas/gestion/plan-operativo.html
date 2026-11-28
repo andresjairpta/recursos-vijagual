@@ -269,6 +269,8 @@ const GRUPOS = { P: 'Primaria · jornada de la tarde', B: 'Bachillerato · jorna
 const copia = o => JSON.parse(JSON.stringify(o));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+/** Fecha y hora en la zona del navegador (Colombia), a partir de un ISO en hora universal. */
+const cuando = v => { const d = new Date(v); return v && !isNaN(d) && /T/.test(String(v)) ? d.toLocaleString('es-CO', { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : String(v || ''); };
 const lsGet = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* sin almacenamiento */ } };
 
@@ -644,7 +646,7 @@ function pintarCuenta() {
   } else {
     h += '<span id="po-gbtn"></span> <span class="nota">Los docentes entran con su correo para marcar el seguimiento, subir evidencias y contar cómo harán su actividad.</span>';
   }
-  h += ' <span class="nota">' + (R.cargado ? (R.ok ? (S.planGuardado ? '· Plan compartido guardado el ' + esc(String(S.planGuardado).slice(0, 10)) + (S.planPor ? ' por ' + esc(S.planPor) : '') : '· Conectado') : '· Sin conexión con el servidor: se muestra lo último guardado en este navegador') : '· Conectando…') + '</span>';
+  h += ' <span class="nota">' + (R.cargado ? (R.ok ? (S.planGuardado ? '· Plan compartido guardado el ' + esc(cuando(S.planGuardado)) + (S.planPor ? ' por ' + esc(S.planPor) : '') : '· Conectado') : '· Sin conexión con el servidor: se muestra lo último guardado en este navegador') : '· Conectando…') + '</span>';
   el.innerHTML = h;
   if (!y && !PRUEBA && window.google && google.accounts && $('#po-gbtn')) google.accounts.id.renderButton($('#po-gbtn'), { theme: 'outline', size: 'medium', text: 'signin_with', locale: 'es' });
 }
@@ -965,7 +967,7 @@ function renderConexion() {
     h += '<p><b>Sin activar.</b> El seguimiento (casillas, estados, evidencias y planeaciones) necesita un pequeño servidor en Google Apps Script con la cuenta del CER. Mientras no esté activo, lo que se marque queda solo en el navegador de cada persona y no se pueden subir archivos.</p><p class="nota">Los pasos están en el archivo INSTRUCCIONES_BACKEND.md, junto a la fuente de esta app. Al terminarlos, se escribe la URL del servidor y el ID de cliente de Google, y se vuelve a publicar la página.</p>';
   } else {
     h += '<p><b>' + (R.ok ? 'Conectado' : 'Sin conexión') + '</b>' + (PRUEBA ? ' · servidor de PRUEBA local' : '') + (R.error ? ' · ' + esc(R.error) : '') + '</p>';
-    h += '<p class="nota">' + (S.planGuardado ? 'Plan compartido guardado el ' + esc(S.planGuardado) + (S.planPor ? ' por ' + esc(S.planPor) : '') + '.' : 'Todavía no hay un plan guardado para todos: se muestra el publicado en la página.') + ' Seguimiento: ' + Object.keys(R.seg).length + ' fechas marcadas, ' + R.ev.length + ' archivos.</p>';
+    h += '<p class="nota">' + (S.planGuardado ? 'Plan compartido guardado el ' + esc(cuando(S.planGuardado)) + (S.planPor ? ' por ' + esc(S.planPor) : '') + '.' : 'Todavía no hay un plan guardado para todos: se muestra el publicado en la página.') + ' Seguimiento: ' + Object.keys(R.seg).length + ' fechas marcadas, ' + R.ev.length + ' archivos.</p>';
     if (R.yo && R.yo.admin) h += '<div id="po-correos"></div>';
     if (R.yo && R.yo.admin) h += '<div class="btns"><button data-accion="guardar-todos"' + (S.editado ? '' : ' class="claro"') + '>Guardar el plan para todos</button><button class="claro" data-accion="enviar"' + (S.base ? '' : ' disabled title="Primero guarda el plan para todos"') + '>Enviar a cada docente sus actividades</button><button class="claro" data-accion="refrescar">Actualizar desde el servidor</button></div><p class="nota">«Enviar a cada docente sus actividades» manda a cada uno un correo con lo suyo y el archivo de calendario, comparte el calendario «Plan operativo CER Vijagual» y lo pone al día. Los correos salen de la hoja privada del servidor.</p><p class="nota">Guardar para todos publica el plan, el reparto, los docentes y el calendario tal como los ves. Los recordatorios por correo usan esas fechas y responsables.</p>';
     else h += '<p class="nota">El plan, el reparto y los ajustes los cambia solo el administrador, que entra con su correo como todos: no hay otra puerta ni otra clave. Los docentes registrados marcan el seguimiento y suben archivos de las actividades a su cargo.</p>';
@@ -1144,7 +1146,7 @@ async function guardarParaTodos(forzar) {
       if (confirm('Otra persona guardó el plan compartido después de que lo abriste. ¿Reemplazarlo con lo que ves aquí?')) return guardarParaTodos(true);
       return;
     }
-    S.base = r.version; S.editado = false; S.conflicto = null; S.planNuevo = false; S.planGuardado = new Date().toISOString().slice(0, 16).replace('T', ' '); S.planPor = R.yo ? R.yo.nombre : '';
+    S.base = r.version; S.editado = false; S.conflicto = null; S.planNuevo = false; S.planGuardado = new Date().toISOString(); S.planPor = R.yo ? R.yo.nombre : '';
     guardar(); render();
     if (confirm('El plan quedó guardado para todos.\n\n¿Enviar ahora a cada docente el correo con sus actividades y agregarlas a su calendario?')) enviarActividades();
   } catch (e) { alert('No se guardó: ' + e.message); }
